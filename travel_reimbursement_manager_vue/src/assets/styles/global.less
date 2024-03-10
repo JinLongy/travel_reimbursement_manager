@@ -1,0 +1,26 @@
+@primary-color: #e99d42;
+@white-color: #ffffff;
+@gray-color-1: #6c6c6c;
+@gray-color-2: #777777;
+@gray-color-3: #bebebe;
+@gray-color-4: #cecece;
+@success-color: #9ed93a;
+@error-color: #de4537;
+@radius-basic: 12px;
+
+.common-card {
+  border-radius: @radius-basic;
+}
+
+.common-title {
+  color: @gray-color-1;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.flex_arrange(@direction: row, @justify: center, @align: center) {
+  display: flex;
+  flex-direction: @direction;
+  justify-content: @justify;
+  align-items: @align;
+}

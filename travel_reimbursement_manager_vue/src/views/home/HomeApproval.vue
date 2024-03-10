@@ -2,154 +2,157 @@
   <el-container>
     <!-- Main Section -->
     <el-main>
-      <div class="tabs">
-        <el-button @click="currentTab = 'tab1'">待审批({{ pendingApprovalCount }})</el-button>
-        <el-button @click="currentTab = 'tab2'">已审批({{ finishedApprovalCount }})</el-button>
-      </div>
+      <el-tabs v-model="currentTab" @tab-click="changeCurrentTab">
+        <el-tab-pane :label="`待审批${pendingApprovalCount}`" name="tab1"></el-tab-pane>
+        <el-tab-pane :label="`已审批${finishedApprovalCount}`" name="tab2"></el-tab-pane>
+      </el-tabs>
 
-      <el-form :inline="true" :model="query" class="demo-form-inline">
-        <div id="search">
-          <el-form-item label="提交人:">
-            <el-input v-model="query.ename" clearable
-                      placeholder="请输入提交人"></el-input>
-          </el-form-item>
-          <el-form-item label="事由:">
-            <el-input v-model="query.ename" clearable
-                      placeholder="请输入事由"></el-input>
-          </el-form-item>
-          <el-form-item label="单号:">
-            <el-input v-model="query.ename" clearable
-                      placeholder="请输入单号"></el-input>
-          </el-form-item>
-          <el-form-item>
-            <el-button type="primary" @click="search"
-                       icon="el-icon-search">查询
-            </el-button>
-          </el-form-item>
-        </div>
-      </el-form>
+      <el-card class="common-card" style="text-align: left">
+        <el-form :inline="true" :model="query" class="demo-form-inline">
+          <div id="search">
+            <el-form-item label="提交人:" style="width: 25%">
+              <el-input v-model="query.name" clearable placeholder="请输入提交人"></el-input>
+            </el-form-item>
+            <el-form-item label="事由:" style="width: 25%">
+              <el-input v-model="query.reason" clearable placeholder="请输入事由"></el-input>
+            </el-form-item>
+            <el-form-item label="单号:" style="width: 25%">
+              <el-input v-model="query.no" clearable placeholder="请输入单号"></el-input>
+            </el-form-item>
+            <el-form-item style="width: 15%">
+              <el-button plain class="search-btn" @click="search" icon="el-icon-search">查询</el-button>
+            </el-form-item>
+          </div>
+        </el-form>
+      </el-card>
 
-
-      <div v-if="currentTab === 'tab1'">
-        <div style="position: relative; left: -540px">待审批列表</div>
+      <el-card class="common-card" style="margin-top: 20px" v-if="currentTab === 'tab1'">
+        <div class="main-title-row">待审批列表</div>
         <div v-if="loadingTab1"></div>
         <div v-else>
           <!--表格-->
           <el-table
-              ref="reimbursementTable"
-              :data="tab1Data"
-              stripe
-              style="width: 100%;font-size: 15px"
-              height="550px"
-              @select="selectOneTravelInfo"
-              @select-all="selectAllTravelInfo"
-              :header-cell-style="{background:'#bababe',color:'black'}"
-              :border="true"
-              :row-key="getRowKeys">
+            ref="reimbursementTable"
+            :data="tab1Data"
+            stripe
+            style="width: 100%; font-size: 15px"
+            height="550px"
+            @select="selectOneTravelInfo"
+            @select-all="selectAllTravelInfo"
+            :header-cell-style="{ background: '#bababe', color: 'black' }"
+            :border="true"
+            :row-key="getRowKeys"
+          >
             <!--复选框-->
 
-            <el-table-column
-                prop="travelId"
-                label="单号"
-                width="140"
-                align="center">
+            <el-table-column prop="travelId" label="单号" width="140" align="center"> </el-table-column>
+            <el-table-column prop="travelDesc" label="单据类型" width="130" align="center" :formatter="descFormat">
+            </el-table-column>
+            <el-table-column prop="travelDesc" label="金额" width="130" align="center" :formatter="descFormat"> </el-table-column>
+            <el-table-column prop="travelDesc" label="提交人" width="130" align="center" :formatter="descFormat">
             </el-table-column>
             <el-table-column
-                prop="travelDesc"
-                label="单据类型"
-                width="130"
-                align="center"
-                :formatter="descFormat">
+              prop="reimbursementTotal"
+              width="130"
+              label="停留时间"
+              align="center"
+              :formatter="reimbursementTotalFormat"
+            >
             </el-table-column>
-            <el-table-column
-                prop="travelDesc"
-                label="金额"
-                width="130"
-                align="center"
-                :formatter="descFormat">
+            <el-table-column prop="reimbursementDate" width="130" label="接收时间" align="center" :formatter="submitTimeFormat">
             </el-table-column>
-            <el-table-column
-                prop="travelDesc"
-                label="提交人"
-                width="130"
-                align="center"
-                :formatter="descFormat">
+            <el-table-column prop="reimbursementDate" label="事由" align="center" :formatter="submitTimeFormat">
             </el-table-column>
-            <el-table-column
-                prop="reimbursementTotal"
-                width="130"
-                label="停留时间"
-                align="center"
-                :formatter="reimbursementTotalFormat">
+            <el-table-column prop="travelDesc" label="业务类型" width="130" align="center" :formatter="descFormat">
             </el-table-column>
-            <el-table-column
-                prop="reimbursementDate"
-                width="130"
-                label="接收时间"
-                align="center"
-                :formatter="submitTimeFormat">
-            </el-table-column>
-            <el-table-column
-                prop="reimbursementDate"
-                width="140"
-                label="事由"
-                align="center"
-                :formatter="submitTimeFormat">
-            </el-table-column>
-            <el-table-column
-                prop="travelDesc"
-                label="业务类型"
-                width="130"
-                align="center"
-                :formatter="descFormat">
-            </el-table-column>
-            <el-table-column
-                label="操作"
-                width="280"
-                align="center">
+            <el-table-column label="操作" width="280" align="center">
               <template slot-scope="scope">
-                <el-button
-                    size="small"
-                    @click="editInfo(scope.row)">编辑
-                </el-button>
-                <el-button
-                    size="small"
-                    style="margin-left: 0"
-                    @click="editInfo(scope.row)">删除
-                </el-button>
-                <el-button
-                    size="small"
-                    style="margin-left: 0"
-                    @click="editInfo(scope.row)">审批
-                </el-button>
+                <el-button type="text" @click="editInfo(scope.row)" class="search-btn">查看</el-button>
               </template>
             </el-table-column>
-            <div slot="empty">
-            </div>
+            <div slot="empty">暂无数据</div>
           </el-table>
 
           <!--分页功能-->
           <div id="page">
             <el-pagination
-                @size-change="handleSizeChange"
-                @current-change="handleCurrentChange"
-                :current-page=query.page
-                :page-sizes="[10, 20, 50, 100]"
-                :page-size=query.limit
-                layout="total, sizes, prev, pager, next, jumper"
-                :total=total
-                :background="true">
+              @size-change="handleSizeChange"
+              @current-change="handleCurrentChange"
+              :current-page="query.page"
+              :page-sizes="[10, 20, 50, 100]"
+              :page-size="query.limit"
+              layout="total, sizes, prev, pager, next, jumper"
+              :total="total"
+              :background="true"
+            >
             </el-pagination>
           </div>
         </div>
-      </div>
-      <div v-if="currentTab === 'tab2'">
-        <div style="position: relative; left: -540px">已审批列表</div>
+      </el-card>
+
+      <el-card class="common-card" style="margin-top: 20px" v-if="currentTab === 'tab2'">
+        <div class="main-title-row">已审批列表</div>
         <div v-if="loadingTab2"></div>
         <div v-else>
+          <!--表格-->
+          <el-table
+            ref="reimbursementTable"
+            :data="tab2Data"
+            stripe
+            style="width: 100%; font-size: 15px"
+            height="550px"
+            @select="selectOneTravelInfo"
+            @select-all="selectAllTravelInfo"
+            :header-cell-style="{ background: '#bababe', color: 'black' }"
+            :border="true"
+            :row-key="getRowKeys"
+          >
+            <!--复选框-->
 
+            <el-table-column prop="travelId" label="单号" width="140" align="center"> </el-table-column>
+            <el-table-column prop="travelDesc" label="单据类型" width="130" align="center" :formatter="descFormat">
+            </el-table-column>
+            <el-table-column prop="travelDesc" label="金额" width="130" align="center" :formatter="descFormat"> </el-table-column>
+            <el-table-column prop="travelDesc" label="提交人" width="130" align="center" :formatter="descFormat">
+            </el-table-column>
+            <el-table-column
+              prop="reimbursementTotal"
+              width="130"
+              label="停留时间"
+              align="center"
+              :formatter="reimbursementTotalFormat"
+            >
+            </el-table-column>
+            <el-table-column prop="reimbursementDate" width="130" label="接收时间" align="center" :formatter="submitTimeFormat">
+            </el-table-column>
+            <el-table-column prop="reimbursementDate" label="事由" align="center" :formatter="submitTimeFormat">
+            </el-table-column>
+            <el-table-column prop="travelDesc" label="业务类型" width="130" align="center" :formatter="descFormat">
+            </el-table-column>
+            <el-table-column label="操作" width="280" align="center">
+              <template slot-scope="scope">
+                <el-button type="text" @click="editInfo(scope.row)" class="search-btn">审批追踪</el-button>
+              </template>
+            </el-table-column>
+            <div slot="empty">暂无数据</div>
+          </el-table>
+
+          <!--分页功能-->
+          <div id="page">
+            <el-pagination
+              @size-change="handleSizeChange"
+              @current-change="handleCurrentChange"
+              :current-page="query.page"
+              :page-sizes="[10, 20, 50, 100]"
+              :page-size="query.limit"
+              layout="total, sizes, prev, pager, next, jumper"
+              :total="total"
+              :background="true"
+            >
+            </el-pagination>
+          </div>
         </div>
-      </div>
+      </el-card>
     </el-main>
   </el-container>
 </template>
@@ -158,14 +161,14 @@
 export default {
   data() {
     return {
-      uid: sessionStorage.getItem("uid"),
+      uid: sessionStorage.getItem('uid'),
       currentTab: 'tab1',
       loadingTab1: false,
       loadingTab2: false,
       tab1Data: [],
       tab2Data: [],
       // 点击查看时当前行差旅信息的编号
-      selectedTravelId: "",
+      selectedTravelId: '',
       // 被选中项的集合
       selectedItems: [],
       // 保存差旅信息时需要向后台传递的内容
@@ -176,47 +179,47 @@ export default {
         tickets: [],
         travelForm: {
           // 驳回原因
-          rejectionReason: "",
+          rejectionReason: '',
           // 申请差旅报销员工编号
-          empno: sessionStorage.getItem("uid"),
+          empno: sessionStorage.getItem('uid'),
           // 出差事由
-          travelDesc: "",
+          travelDesc: '',
           // 报销金额
-          reimbursementTotal: "",
+          reimbursementTotal: '',
           // 报销金额大写
-          moneyUppercase: "",
+          moneyUppercase: '',
           // 出差的出发时间
-          startTime: "",
+          startTime: '',
           // 出差的到达时间
-          arrivalTime: "",
+          arrivalTime: '',
           // 出差天数
-          travelDays: "",
+          travelDays: '',
           // 报销日期
-          reimbursementDate: "",
+          reimbursementDate: '',
           // 差旅编号
-          travelId: "",
+          travelId: '',
           // 报销状态
-          status: ""
-        }
+          status: '',
+        },
       },
       // 补助金额
-      subsidy: "",
+      subsidy: '',
       // 暂存选中的待新增车票
       ticketsCache: [],
       // 当前登录员工未关联差旅的车票
       tickets: [],
       // 已登录的用户名
-      loggedName: sessionStorage.getItem("loggedName"),
+      loggedName: sessionStorage.getItem('loggedName'),
       dialogTableVisible: false,
       // 差旅信息表格数据源
       travelInfos: [],
       // 查询条件
       query: {
-        empno: sessionStorage.getItem("uid"),
-        reimbursementDate: "",
+        empno: sessionStorage.getItem('uid'),
+        reimbursementDate: '',
         // 默认当前页为 1
         page: 1,
-        limit: 6
+        limit: 6,
       },
       // 数据总条数，默认为0
       total: 0,
@@ -229,63 +232,63 @@ export default {
       // 弹出层左侧提示文字的宽度
       formLabelWidth: '120px',
       // 获取查询时间
-      searchTime: "",
+      searchTime: '',
       pendingApprovalCount: 10,
-      finishedApprovalCount: 0
-    };
+      finishedApprovalCount: 0,
+    }
   },
   methods: {
     recipeSQD() {
-      this.$router.push("/recipeSQD");
+      this.$router.push('/recipeSQD')
     },
     recipeBDX() {
-      this.$router.push("/recipeBXD");
-
+      this.$router.push('/recipeBXD')
     },
     workOverTime() {
-      this.$router.push("/workOverTime");
+      this.$router.push('/workOverTime')
     },
     reimbursement() {
-      this.$router.push("/reimbursement");
+      this.$router.push('/reimbursement')
     },
     fetchDataForTab1() {
-      this.loadingTab1 = true;
+      this.loadingTab1 = true
       let data = {
         uid: this.uid,
-
       }
-      this.$http.post('/receipt/list', data)
-          .then(response => {
-            this.tab1Data = response.data.data;
-          })
-          .catch(error => {
-            console.error('Error fetching data for tab1:', error);
-          })
-          .finally(() => {
-            this.loadingTab1 = false;
-          });
+      this.$http
+        .post('/receipt/list', data)
+        .then((response) => {
+          this.tab1Data = response.data.data
+        })
+        .catch((error) => {
+          console.error('Error fetching data for tab1:', error)
+        })
+        .finally(() => {
+          this.loadingTab1 = false
+        })
     },
     fetchDataForTab2() {
-      this.loadingTab2 = true;
+      this.loadingTab2 = true
       let data = {
-        "empno": 3,
-        "page": 1,
-        "limit": 10
+        empno: 3,
+        page: 1,
+        limit: 10,
       }
-      this.$http.post('/travelInfoListByPage', data)
-          .then(response => {
-            this.tab2Data = response.data.data;
-          })
-          .catch(error => {
-            console.error('Error fetching data for tab2:', error);
-          })
-          .finally(() => {
-            this.loadingTab2 = false;
-          });
+      this.$http
+        .post('/travelInfoListByPage', data)
+        .then((response) => {
+          this.tab2Data = response.data.data
+        })
+        .catch((error) => {
+          console.error('Error fetching data for tab2:', error)
+        })
+        .finally(() => {
+          this.loadingTab2 = false
+        })
     },
     getRowKeys(row) {
       // id 是后台传递的每行信息唯一标识
-      return row.travelId;
+      return row.travelId
     },
     // 选中一条差旅信息
     selectOneTravelInfo(selection) {
@@ -297,46 +300,52 @@ export default {
     },
     // 某条差旅信息是否可以编辑
     isEditable(row) {
-      return [1, 2.1, 3.1].includes(row.status);
+      return [1, 2.1, 3.1].includes(row.status)
     },
     // 表格字段为空时默认显示
     descFormat(cellValue) {
-      if (cellValue.travelDesc == null || cellValue.travelDesc == "") {
-        return "无"
+      if (cellValue.travelDesc == null || cellValue.travelDesc == '') {
+        return '无'
       } else {
         return cellValue.travelDesc
       }
     },
     submitTimeFormat(cellValue) {
-      if (cellValue.reimbursementDate == null || cellValue.reimbursementDate == "") {
-        return "尚未提交"
+      if (cellValue.reimbursementDate == null || cellValue.reimbursementDate == '') {
+        return '尚未提交'
       } else {
         return cellValue.reimbursementDate
       }
     },
     reimbursementTotalFormat(cellValue) {
-      if (cellValue.reimbursementDate == null || cellValue.reimbursementDate == "") {
-        return "尚未填写"
+      if (cellValue.reimbursementDate == null || cellValue.reimbursementDate == '') {
+        return '尚未填写'
       } else {
         return cellValue.reimbursementDate
       }
     },
     // 获取差旅报销信息
     getTravelInfoList() {
-      this.$http.post("/travelInfoListByPage", this.query).then(res => {
-        this.travelInfos = res.data.data
-        this.total = res.data.count
-      }).catch(err => {
-        this.$message.error("差旅报销信息获取失败，请联系管理员~")
-      })
+      this.$http
+        .post('/travelInfoListByPage', this.query)
+        .then((res) => {
+          this.travelInfos = res.data.data
+          this.total = res.data.count
+        })
+        .catch((err) => {
+          this.$message.error('差旅报销信息获取失败，请联系管理员~')
+        })
     },
     // 编辑当前差旅信息
     editInfo(row) {
-      this.$http.get("/getAssociatedTickets/" + row.travelId).then(res => {
-        this.associateTickets = res.data.data
-      }).catch(err => {
-        this.$message.error("获取差旅信息失败，请联系管理员~")
-      });
+      this.$http
+        .get('/getAssociatedTickets/' + row.travelId)
+        .then((res) => {
+          this.associateTickets = res.data.data
+        })
+        .catch((err) => {
+          this.$message.error('获取差旅信息失败，请联系管理员~')
+        })
       this.dialogFormVisible = true
     },
     // 当每页多少条被改变时，val代表改变后的每页多少条
@@ -351,67 +360,43 @@ export default {
     },
     // 自定义索引
     calIndex(index) {
-      return index + 1 + (this.query.page - 1) * this.query.limit;
+      return index + 1 + (this.query.page - 1) * this.query.limit
     },
     search() {
       this.query.page = 1
       this.getTravelInfoList()
-    }
-  },
-  watch: {
-    currentTab(newValue) {
-      if (newValue === 'tab1') {
-        this.fetchDataForTab1();
-      } else if (newValue === 'tab2') {
-        this.fetchDataForTab2();
+    },
+    changeCurrentTab(newTab) {
+      this.query = {
+        name: '',
+        reason: '',
+        no: '',
+        page: 1,
+        limit: 6,
       }
-    }
+      if (newTab === 'tab1') {
+        this.fetchDataForTab1()
+      } else if (newTab === 'tab2') {
+        this.fetchDataForTab2()
+      }
+    },
   },
+  watch: {},
   created() {
-    this.fetchDataForTab1();
-  }
-};
+    this.fetchDataForTab1()
+  },
+}
 </script>
 
-<style scoped>
-.container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  //padding: 5px;
+<style scoped lang="less">
+.search-btn {
+  color: @primary-color;
 }
 
-.blue {
-  background-color: #a5c8d3;
-}
-
-.yellow {
-  background-color: #e3e3b8;
-}
-
-.pink {
-  background-color: #e7c5c9;
-}
-
-.separator-line {
-  width: 100%;
-  height: 1px;
-  background-color: #ccc;
-}
-
-.tabs {
-  display: flex;
-  justify-content: start;
-  border-bottom: 1px solid #ccc;
-  padding-bottom: 10px;
-}
-
-.tabs el-button {
-  margin-right: 10px;
-}
-
-.button-row {
-  display: flex;
+.main-title-row {
+  font-size: 18px;
+  text-align: left;
+  font-weight: 900;
+  margin-bottom: 20px;
 }
 </style>

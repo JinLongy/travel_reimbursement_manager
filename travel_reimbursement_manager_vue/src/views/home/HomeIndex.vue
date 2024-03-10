@@ -1,236 +1,98 @@
 <template>
   <el-container>
-    <!-- Header Section -->
-    <el-header>
-      <el-row>
-        <el-col :span="8">
-          <div class="container blue">
-            <i class="el-icon-s-ticket">国内、国际差旅、异地派遣</i>
-            <div class="button-row">
-              <el-button type="primary" @click="recipeSQD" icon="el-icon-plus">差旅申请</el-button>
-              <el-button type="primary" @click="recipeBDX" icon="el-icon-plus">差旅报销</el-button>
-            </div>
-          </div>
-        </el-col>
-        <el-col :span="8">
-          <div class="container yellow">
-            <i class="el-icon-s-ticket">工作日、周末、法定节假日加班</i>
-            <div class="button-row">
-              <el-button type="primary" @click="workOverTime" icon="el-icon-plus">加班申请</el-button>
-            </div>
-          </div>
-        </el-col>
-        <el-col :span="8">
-          <div class="container pink">
-            <i class="el-icon-s-ticket">晚餐补贴、团建、交通等</i>
-            <div class="button-row">
-              <el-button type="primary" @click="reimbursement" icon="el-icon-plus">发起报销</el-button>
-            </div>
-          </div>
-        </el-col>
-      </el-row>
-    </el-header>
-
     <!-- Main Section -->
     <el-main>
-      <div class="tabs">
-        <el-button @click="currentTab = 'tab1'">我的单据</el-button>
-        <el-button @click="currentTab = 'tab2'">待我审批</el-button>
-      </div>
-      <div v-if="currentTab === 'tab1'">
+      <el-card class="common-card">
+        <el-row type="flex" align="center" justify="space-between">
+          <el-col :span="7">
+            <div class="container blue">
+              <div class="title-row">
+                <i class="el-icon-s-ticket"> </i>
+                <span class="title blue-title">差旅</span>
+                <span class="des">国内、国际差旅、异地派遣</span>
+              </div>
+              <div class="button-row">
+                <el-button class="blue-title" size="mini" @click="recipeSQD">差旅申请</el-button>
+                <el-button class="blue-title" size="mini" @click="recipeBDX">差旅报销</el-button>
+              </div>
+            </div>
+          </el-col>
+          <el-col :span="7">
+            <div class="container yellow">
+              <div class="title-row">
+                <i class="el-icon-s-ticket"> </i>
+                <span class="title yellow-title">加班</span>
+                <span class="des">工作日、周末、法定节假日加班</span>
+              </div>
+              <div class="button-row">
+                <el-button class="yellow-title" size="mini" @click="workOverTime">加班申请</el-button>
+              </div>
+            </div>
+          </el-col>
+          <el-col :span="7">
+            <div class="container pink">
+              <div class="title-row">
+                <i class="el-icon-s-ticket"> </i>
+                <span class="title pink-title">报销</span>
+                <span class="des">晚餐补贴、团建、交通等</span>
+              </div>
+              <div class="button-row">
+                <el-button class="pink-title" size="mini" @click="reimbursement">发起报销</el-button>
+              </div>
+            </div>
+          </el-col>
+        </el-row>
+      </el-card>
+      <el-card class="common-card" style="margin-top: 20px">
+        <div class="main-title-row">我的单据</div>
         <div v-if="loadingTab1"></div>
         <div v-else>
           <el-table
-              ref="reimbursementTable"
-              :data="tab1Data"
-              stripe
-              style="width: 100%;font-size: 15px"
-              height="550px"
-              @select="selectOneTravelInfo"
-              @select-all="selectAllTravelInfo"
-              :header-cell-style="{background:'#bababe',color:'black'}"
-              :border="true"
-              :row-key="getRowKeys">
-            <el-table-column
-                prop="id"
-                label="单据信息"
-                width="140"
-                align="center">
+            ref="reimbursementTable"
+            :data="tab1Data"
+            stripe
+            style="width: 100%; font-size: 15px"
+            height="550px"
+            @select="selectOneTravelInfo"
+            @select-all="selectAllTravelInfo"
+            :header-cell-style="{ background: '#bababe', color: 'black' }"
+            :border="true"
+            :row-key="getRowKeys"
+          >
+            <el-table-column prop="id" label="单据信息" width="160" align="center"> </el-table-column>
+            <el-table-column prop="type" label="业务类型" width="100" align="center"> </el-table-column>
+            <el-table-column prop="status" label="状态" width="120" align="center"> </el-table-column>
+            <el-table-column prop="remark" label="事由" align="center"> </el-table-column>
+            <el-table-column prop="feeTotal" label="金额" width="120" align="center" :formatter="formatMoney"> </el-table-column>
+            <el-table-column prop="createTime" label="报销时间" width="130" align="center" :formatter="formatDate">
             </el-table-column>
-            <el-table-column
-                prop="type"
-                label="业务类型"
-                width="140"
-                align="center">
-            </el-table-column>
-            <el-table-column
-                prop="status"
-                label="状态"
-                width="140"
-                align="center">
-            </el-table-column>
-            <el-table-column
-                prop="remark"
-                label="事由"
-                width="140"
-                align="center">
-            </el-table-column>
-            <el-table-column
-                prop="feeTotal"
-                width="140"
-                label="金额"
-                align="center"
-                :formatter="formatMoney">
-            </el-table-column>
-            <el-table-column
-                prop="createTime"
-                width="140"
-                label="报销时间"
-                align="center"
-                :formatter="formatDate">
-            </el-table-column>
-            <el-table-column
-                label="操作"
-                width="280"
-                align="center">
+            <el-table-column label="操作" width="280" align="center">
               <template slot-scope="scope">
-                <el-button
-                    size="small"
-                    @click="editInfo(scope.row)">编辑
-                </el-button>
-                <el-button
-                    size="small"
-                    style="margin-left: 0"
-                    @click="copyInfo(scope.row)">复制
-                </el-button>
-                <el-button
-                    size="small"
-                    style="margin-left: 0"
-                    @click="deleteInfo(scope.row)">删除
-                </el-button>
-                <el-button
-                    size="small"
-                    style="margin-left: 0"
-                    @click="approval(scope.row)">审批
-                </el-button>
+                <el-button type="text" @click="editInfo(scope.row)">编辑 </el-button>
+                <el-button type="text" style="margin-left: 0" @click="copyInfo(scope.row)">复制 </el-button>
+                <el-button type="text" style="margin-left: 0" @click="deleteInfo(scope.row)">删除 </el-button>
+                <el-button type="text" style="margin-left: 0" @click="approval(scope.row)">审批 </el-button>
               </template>
             </el-table-column>
-            <div slot="empty">
-            </div>
+            <div slot="empty">暂无数据</div>
           </el-table>
 
           <!--分页功能-->
           <div id="page">
             <el-pagination
-                @size-change="handleSizeChange"
-                @current-change="handleCurrentChange"
-                :current-page=query.page
-                :page-sizes="[10, 20, 50, 100]"
-                :page-size=query.limit
-                layout="total, sizes, prev, pager, next, jumper"
-                :total=total
-                :background="true">
+              @size-change="handleSizeChange"
+              @current-change="handleCurrentChange"
+              :current-page="query.page"
+              :page-sizes="[10, 20, 50, 100]"
+              :page-size="query.limit"
+              layout="total, sizes, prev, pager, next, jumper"
+              :total="total"
+              :background="true"
+            >
             </el-pagination>
           </div>
         </div>
-      </div>
-      <div v-if="currentTab === 'tab2'">
-        <div v-if="loadingTab2"></div>
-        <div v-else>
-          <el-table
-              ref="reimbursementTable"
-              :data="tab2Data"
-              stripe
-              style="width: 100%;font-size: 15px"
-              height="550px"
-              @select="selectOneTravelInfo"
-              @select-all="selectAllTravelInfo"
-              :header-cell-style="{background:'#bababe',color:'black'}"
-              :border="true"
-              :row-key="getRowKeys">
-            <el-table-column
-                prop="id"
-                label="单据信息"
-                width="140"
-                align="center">
-            </el-table-column>
-            <el-table-column
-                prop="type"
-                label="业务类型"
-                width="140"
-                align="center">
-            </el-table-column>
-            <el-table-column
-                prop="status"
-                label="状态"
-                width="140"
-                align="center">
-            </el-table-column>
-            <el-table-column
-                prop="remark"
-                label="事由"
-                width="140"
-                align="center">
-            </el-table-column>
-            <el-table-column
-                prop="feeTotal"
-                width="140"
-                label="金额"
-                align="center"
-                :formatter="formatMoney">
-            </el-table-column>
-            <el-table-column
-                prop="createTime"
-                width="140"
-                label="报销时间"
-                align="center"
-                :formatter="formatDate">
-            </el-table-column>
-            <el-table-column
-                label="操作"
-                width="280"
-                align="center">
-              <template slot-scope="scope">
-                <el-button
-                    size="small"
-                    @click="editInfo(scope.row)">编辑
-                </el-button>
-                <el-button
-                    size="small"
-                    style="margin-left: 0"
-                    @click="copyInfo(scope.row)">复制
-                </el-button>
-                <el-button
-                    size="small"
-                    style="margin-left: 0"
-                    @click="deleteInfo(scope.row)">删除
-                </el-button>
-                <el-button
-                    size="small"
-                    style="margin-left: 0"
-                    @click="approval(scope.row)">审批
-                </el-button>
-              </template>
-            </el-table-column>
-            <div slot="empty">
-            </div>
-          </el-table>
-
-          <!--分页功能-->
-          <div id="page">
-            <el-pagination
-                @size-change="handleSizeChange"
-                @current-change="handleCurrentChange"
-                :current-page=query.page
-                :page-sizes="[10, 20, 50, 100]"
-                :page-size=query.limit
-                layout="total, sizes, prev, pager, next, jumper"
-                :total=total
-                :background="true">
-            </el-pagination>
-          </div>
-        </div>
-      </div>
+      </el-card>
     </el-main>
   </el-container>
 </template>
@@ -239,14 +101,11 @@
 export default {
   data() {
     return {
-      uid: sessionStorage.getItem("uid"),
-      currentTab: 'tab1',
+      uid: sessionStorage.getItem('uid'),
       loadingTab1: false,
-      loadingTab2: false,
       tab1Data: [],
-      tab2Data: [],
       // 点击查看时当前行差旅信息的编号
-      selectedTravelId: "",
+      selectedTravelId: '',
       // 被选中项的集合
       selectedItems: [],
       // 保存差旅信息时需要向后台传递的内容
@@ -257,37 +116,37 @@ export default {
         tickets: [],
         travelForm: {
           // 驳回原因
-          rejectionReason: "",
+          rejectionReason: '',
           // 申请差旅报销员工编号
-          empno: sessionStorage.getItem("uid"),
+          empno: sessionStorage.getItem('uid'),
           // 出差事由
-          travelDesc: "",
+          travelDesc: '',
           // 报销金额
-          reimbursementTotal: "",
+          reimbursementTotal: '',
           // 报销金额大写
-          moneyUppercase: "",
+          moneyUppercase: '',
           // 出差的出发时间
-          startTime: "",
+          startTime: '',
           // 出差的到达时间
-          arrivalTime: "",
+          arrivalTime: '',
           // 出差天数
-          travelDays: "",
+          travelDays: '',
           // 报销日期
-          reimbursementDate: "",
+          reimbursementDate: '',
           // 差旅编号
-          travelId: "",
+          travelId: '',
           // 报销状态
-          status: ""
-        }
+          status: '',
+        },
       },
       // 补助金额
-      subsidy: "",
+      subsidy: '',
       // 暂存选中的待新增车票
       ticketsCache: [],
       // 当前登录员工未关联差旅的车票
       tickets: [],
       // 已登录的用户名
-      loggedName: sessionStorage.getItem("loggedName"),
+      loggedName: sessionStorage.getItem('loggedName'),
       dialogTableVisible: false,
       // 差旅信息表格数据源
       travelInfos: [
@@ -308,16 +167,16 @@ export default {
           reimbursementTotal: '5000.00',
           reimbursementDate: '2023-04-15',
           // ... 其他字段 ...
-        }
+        },
         // 更多差旅信息...
       ],
       // 查询条件
       query: {
-        empno: sessionStorage.getItem("uid"),
-        reimbursementDate: "",
+        empno: sessionStorage.getItem('uid'),
+        reimbursementDate: '',
         // 默认当前页为 1
         page: 1,
-        limit: 6
+        limit: 6,
       },
       // 数据总条数，默认为0
       total: 0,
@@ -330,63 +189,42 @@ export default {
       // 弹出层左侧提示文字的宽度
       formLabelWidth: '120px',
       // 获取查询时间
-      searchTime: ""
-    };
+      searchTime: '',
+    }
   },
   methods: {
     recipeSQD() {
-      this.$router.push("/recipeSQD");
+      this.$router.push('/recipeSQD')
     },
     recipeBDX() {
-      this.$router.push("/recipeBXD");
-
+      this.$router.push('/recipeBXD')
     },
     workOverTime() {
-      this.$router.push("/workOverTime");
+      this.$router.push('/workOverTime')
     },
     reimbursement() {
-      this.$router.push("/reimbursement");
+      this.$router.push('/reimbursement')
     },
     fetchDataForTab1() {
-      this.loadingTab1 = true;
+      this.loadingTab1 = true
       let data = {
-        "uid": this.uid
+        uid: this.uid,
       }
-      this.$http.post('/receipt/list', data)
-          .then(response => {
-            this.tab1Data = response.data;
-          })
-          .catch(error => {
-            console.error('Error fetching data for tab1:', error);
-          })
-          .finally(() => {
-            this.loadingTab1 = false;
-          });
-    },
-    fetchDataForTab2() {
-      this.loadingTab2 = true;
-      let data = {
-        "empno": 3,
-        "page": 1,
-        "limit": 10
-      }
-      let uid = sessionStorage.getItem("uid")
-      console.log(uid)
-      this.$http.get('/approval/queryRecipeTobeDoneByMe/' + uid)
-          .then(response => {
-
-            this.tab2Data = response.data;
-          })
-          .catch(error => {
-            console.error('Error fetching data for tab2:', error);
-          })
-          .finally(() => {
-            this.loadingTab2 = false;
-          });
+      this.$http
+        .post('/receipt/list', data)
+        .then((response) => {
+          this.tab1Data = response.data
+        })
+        .catch((error) => {
+          console.error('Error fetching data for tab1:', error)
+        })
+        .finally(() => {
+          this.loadingTab1 = false
+        })
     },
     getRowKeys(row) {
       // id 是后台传递的每行信息唯一标识
-      return row.travelId;
+      return row.travelId
     },
     // 选中一条差旅信息
     selectOneTravelInfo(selection) {
@@ -398,32 +236,38 @@ export default {
     },
     // 获取差旅报销信息
     getTravelInfoList() {
-      this.$http.post("/travelInfoListByPage", this.query).then(res => {
-        this.travelInfos = res.data.data
-        this.total = res.data.count
-      }).catch(err => {
-        this.$message.error("差旅报销信息获取失败，请联系管理员~")
-      })
+      this.$http
+        .post('/travelInfoListByPage', this.query)
+        .then((res) => {
+          this.travelInfos = res.data.data
+          this.total = res.data.count
+        })
+        .catch((err) => {
+          this.$message.error('差旅报销信息获取失败，请联系管理员~')
+        })
     },
     editInfo(row) {
-      let type = "sqd"
+      let type = 'sqd'
       let url = '/receipt/sqd/query/' + row.id
       if (row.type.includes('Reimbursement')) {
         url = '/receipt/bxd/query/' + row.id
-        type = "bxd"
+        type = 'bxd'
       }
-      this.$http.get(url).then(res => {
-        // TODO 展示单据信息
-      }).catch(err => {
-        this.$message.error("获取单据信息失败")
-      });
+      this.$http
+        .get(url)
+        .then((res) => {
+          // TODO 展示单据信息
+        })
+        .catch((err) => {
+          this.$message.error('获取单据信息失败')
+        })
       this.dialogFormVisible = true
     },
     approval(row) {
       if (row.url != null && row.url !== '') {
-        this.$router.push({path: "/instance", query: {rowData: row, mode: 'view'}});
+        this.$router.push({ path: '/instance', query: { rowData: row, mode: 'view' } })
       } else {
-        this.$message.warning("无审批流程")
+        this.$message.warning('无审批流程')
       }
     },
     // 当每页多少条被改变时，val代表改变后的每页多少条
@@ -438,7 +282,7 @@ export default {
     },
     // 自定义索引
     calIndex(index) {
-      return index + 1 + (this.query.page - 1) * this.query.limit;
+      return index + 1 + (this.query.page - 1) * this.query.limit
     },
     search() {
       this.query.page = 1
@@ -446,77 +290,77 @@ export default {
     },
     formatMoney(cellValue) {
       if (cellValue.feeTotal != null) {
-        return cellValue.feeTotal + " CNY";
+        return cellValue.feeTotal + ' CNY'
       }
     },
     formatDate(cellValue) {
-      let v = cellValue.createTime;
+      let v = cellValue.createTime
       if (v == null) {
-        v = cellValue.updateTime;
+        v = cellValue.updateTime
       }
-      let d = new Date(v);
-      let year = d.getFullYear();
-      let month = ('0' + (d.getMonth() + 1)).slice(-2);
-      let day = ('0' + d.getDate()).slice(-2);
-      let hour = ('0' + d.getHours()).slice(-2);
-      let minutes = ('0' + d.getMinutes()).slice(-2);
-      return `${year}年${month}月${day}日 ${hour}:${minutes}`;
+      let d = new Date(v)
+      let year = d.getFullYear()
+      let month = ('0' + (d.getMonth() + 1)).slice(-2)
+      let day = ('0' + d.getDate()).slice(-2)
+      let hour = ('0' + d.getHours()).slice(-2)
+      let minutes = ('0' + d.getMinutes()).slice(-2)
+      return `${year}年${month}月${day}日 ${hour}:${minutes}`
     },
   },
-  watch: {
-    currentTab(newValue) {
-      if (newValue === 'tab1') {
-        this.fetchDataForTab1();
-      } else if (newValue === 'tab2') {
-        this.fetchDataForTab2();
-      }
-    }
-  },
+  watch: {},
   created() {
-    this.fetchDataForTab1(); // Fetch initial data for tab1 when component is created
-  }
-};
+    this.fetchDataForTab1() // Fetch initial data for tab1 when component is created
+  },
+}
 </script>
 
-<style scoped>
+<style scoped lang="less">
 .container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  //padding: 5px;
+  .flex_arrange(column);
+  padding: 10px;
+  .title-row {
+    display: flex;
+    align-items: center;
+    .title {
+      margin: 0 8px;
+      font-weight: 900;
+    }
+    .des {
+      color: #999;
+      font-size: 12px;
+    }
+  }
+  .button-row {
+    display: flex;
+    margin-top: 8px;
+  }
 }
 
 .blue {
-  background-color: #a5c8d3;
+  background-color: #bee4f8;
+  .blue-title {
+    color: #3a98ed;
+  }
 }
 
 .yellow {
-  background-color: #e3e3b8;
+  background-color: #f8e2c1;
+  .yellow-title {
+    color: #e99d42;
+  }
 }
 
 .pink {
-  background-color: #e7c5c9;
+  background-color: #f5dadd;
+  .pink-title {
+    color: #de868f;
+  }
 }
 
-.separator-line {
-  width: 100%;
-  height: 1px;
-  background-color: #ccc;
-}
-
-.tabs {
-  display: flex;
-  justify-content: start;
-  border-bottom: 1px solid #ccc;
-  padding-bottom: 10px;
-}
-
-.tabs el-button {
-  margin-right: 10px;
-}
-
-.button-row {
-  display: flex;
+.main-title-row {
+  font-size: 18px;
+  text-align: left;
+  font-weight: 900;
+  margin-bottom: 20px;
 }
 </style>

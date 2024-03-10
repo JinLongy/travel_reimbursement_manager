@@ -3,15 +3,10 @@
     <el-container>
       <el-header>
         <div id="header">
-          <div>
-          </div>
-          <div style="position:absolute;top: 2px;right: 50px;font-size: 20px;font-weight: bold">
+          <div></div>
+          <div style="position: absolute; top: 2px; right: 50px; font-size: 20px; font-weight: bold">
             姓名：{{ loggedName }}
-            <el-button icon="el-icon-switch-button"
-                       type="warning"
-                       circle
-                       style="margin-left: 20px"
-                       @click="logout"></el-button>
+            <el-button icon="el-icon-switch-button" type="warning" circle style="margin-left: 20px" @click="logout"></el-button>
           </div>
         </div>
       </el-header>
@@ -19,12 +14,13 @@
         <el-aside width="200px">
           <el-col :span="120">
             <el-menu
-                :default-active=checkedMenu
-                class="el-menu-vertical-demo"
-                background-color="#fff"
-                text-color="#444"
-                active-text-color="#000"
-                :router="true">
+              :default-active="checkedMenu"
+              class="el-menu-vertical-demo"
+              background-color="#fff"
+              text-color="#444"
+              active-text-color="#000"
+              :router="true"
+            >
               <el-menu-item index="/home/index">
                 <i class="el-icon-s-home"></i>
                 <span slot="title">首 页</span>
@@ -54,7 +50,7 @@
         </el-aside>
         <el-main>
           <div id="showView">
-            <router-view/>
+            <router-view />
           </div>
         </el-main>
       </el-container>
@@ -64,21 +60,21 @@
 
 <script>
 export default {
-  name: "Manager",
+  name: 'Manager',
   data() {
     return {
       checkedMenu: this.$route.path,
-      loggedName: sessionStorage.getItem("loggedName"),
-      uid: sessionStorage.getItem("uid")
+      loggedName: sessionStorage.getItem('loggedName'),
+      uid: sessionStorage.getItem('uid'),
     }
   },
   methods: {
     logout() {
-      sessionStorage.removeItem("uid");
-      sessionStorage.removeItem("loggedName");
-      this.$router.push("/");
-    }
-  }
+      sessionStorage.removeItem('uid')
+      sessionStorage.removeItem('loggedName')
+      this.$router.push('/')
+    },
+  },
 }
 </script>
 
@@ -107,13 +103,13 @@ export default {
 .el-aside {
   background-color: #ff7d41;
   color: #333;
-  text-align: center;
+  text-align: left;
   line-height: 800px;
   height: 870px;
 }
 
 .el-main {
-  background-color: #E9EEF3;
+  background-color: #e9eef3;
   color: #333;
   text-align: center;
 }

@@ -14,6 +14,7 @@ import "bpmn-js/dist/assets/bpmn-font/css/bpmn-embedded.css";
 import 'bpmn-js-properties-panel/dist/assets/bpmn-js-properties-panel.css'
 import x2js from 'x2js'
 
+import './assets/styles/global.less'
 
 // 设置后台访问路径
 axios.defaults.baseURL = "http://localhost:8086"

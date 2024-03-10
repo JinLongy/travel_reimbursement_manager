@@ -18,67 +18,67 @@
 import * as echarts from 'echarts'
 
 export default {
-  name: "echarts",
+  name: 'echarts',
   props: {
     height: {
       type: String,
-      default: "400px",
+      default: '400px',
     },
     width: {
       type: String,
-      default: "500px",
+      default: '500px',
     },
     id: {
       type: String,
-      default: "demo",
+      default: 'demo',
     },
     top3: {
       type: String,
-      default: "demo2",
-    }
+      default: 'demo2',
+    },
   },
   data() {
     return {
       xValue: [1, 1, 1, 2, 3, 3],
       yValue: ['陕西移动', '山西移动', '北京移动', '山东移动', '河北移动', '河南移动'],
-      firstx: ["衬衫", "羊毛衫", "雪纺衫", "裤子", "高跟鞋", "袜子"],
+      firstx: ['衬衫', '羊毛衫', '雪纺衫', '裤子', '高跟鞋', '袜子'],
       firsty: [5, 20, 36, 10, 10, 20],
-    };
+    }
   },
   mounted() {
-    this.drawLine();
-    this.show();
+    this.drawLine()
+    this.show()
   },
   methods: {
     drawLine() {
-      let myChart = echarts.init(document.getElementById(this.id));
+      let myChart = echarts.init(document.getElementById(this.id))
       myChart.setOption({
-        title: {text: "费用数据分析"},
+        title: { text: '费用数据分析' },
         tooltip: {},
         xAxis: {
           type: 'category',
-          data: this.firstx
+          data: this.firstx,
         },
         yAxis: {},
         series: [
           {
-            name: "销量",
-            type: "bar",
-            data: this.firsty
+            name: '销量',
+            type: 'bar',
+            data: this.firsty,
           },
         ],
-      });
+      })
     },
     show() {
       this.charts = echarts.init(document.getElementById('bar'))
       var option = {
         color: ['#d84430'],
         tooltip: {
-          show: true
+          show: true,
         },
         yAxis: {
           axisTick: {
-            show: true
+            show: true,
           },
           axisLine: {
             show: true,
@@ -98,19 +98,19 @@ export default {
             rich: {
               other: {
                 color: 'rgba(0,0,0,0.87)',
-                opacity: 0.57
+                opacity: 0.57,
               },
               first: {
-                color: 'rgba(0,0,0,0.87)'
-              }
-            }
+                color: 'rgba(0,0,0,0.87)',
+              },
+            },
           },
-          data: this.yValue
+          data: this.yValue,
         },
         xAxis: {
           nameTextStyle: {
             color: 'rgba(255, 255, 255, 0.8)',
-            align: 'right'
+            align: 'right',
           },
           splitLine: {
             show: false,
@@ -119,44 +119,46 @@ export default {
             show: false,
           },
           axisLabel: {
-            color: 'rgba(255, 255, 255, 0.8)'
+            color: 'rgba(255, 255, 255, 0.8)',
           },
         },
         grid: {
           top: '0%',
           bottom: '0%',
           left: '0%',
-          right: '0%'
+          right: '0%',
         },
-        series: [{
-          barWidth: 15,
-          type: 'bar',
-          data: this.xValue,
-          itemStyle: {
-            normal: {
-              borderRadius: [3, 20, 20, 3],
-              color: function (params) {
-                if (params.dataIndex === 5) {
-                  return '#d84430'
-                } else if (params.dataIndex === 4) {
-                  return '#f38237'
-                } else if (params.dataIndex === 3) {
-                  return '#e2aa20'
-                } else {
-                  return '#608289'
-                }
-              }
+        series: [
+          {
+            barWidth: 15,
+            type: 'bar',
+            data: this.xValue,
+            itemStyle: {
+              normal: {
+                borderRadius: [3, 20, 20, 3],
+                color: function (params) {
+                  if (params.dataIndex === 5) {
+                    return '#d84430'
+                  } else if (params.dataIndex === 4) {
+                    return '#f38237'
+                  } else if (params.dataIndex === 3) {
+                    return '#e2aa20'
+                  } else {
+                    return '#608289'
+                  }
+                },
+              },
             },
-          }
-        }]
-      };
-      this.charts.setOption(option);
+          },
+        ],
+      }
+      this.charts.setOption(option)
       window.addEventListener('resize', () => {
         this.charts.resize()
       })
-    }
-  }
-};
+    },
+  },
+}
 </script>
 
 <style>
@@ -188,4 +190,3 @@ export default {
   color: rgba(255, 255, 255, 0.8);
 }
 </style>
-

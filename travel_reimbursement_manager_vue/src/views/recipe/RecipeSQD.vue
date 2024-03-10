@@ -1,67 +1,79 @@
 <template>
-  <div class="container">
+  <div class="page-wrapper">
     <div class="top-section">
-      <div class="left">
-        <i class="el-icon-back" @click="goBack">返回上一页</i>
-
+      <div class="left" @click="goBack">
+        <i class="el-icon-back" style="font-size: 22px"></i>
+        <span class="common-title"> 新增 </span>
       </div>
       <div class="right">
-        <el-button type="primary" size="small" @click="save">保存</el-button>
-        <el-button type="success" size="small" @click="submit">提交审批</el-button>
+        <el-button @click="saveHandler">保存</el-button>
+        <el-button @click="submitHandler" class="submit-btn">提交审批</el-button>
       </div>
     </div>
-
-    <div class="middle-section">
-      <div>出行人</div>
-      <div class="traveler-info">
-        <i class="el-icon-user-solid"/>
-        <span v-if="username">{{ username }}</span>
-        <span v-else>加载中...</span>
-        <el-button size="mini" @click="addOrEdit">添加/编辑</el-button>
-      </div>
-    </div>
-
-    <div class="bottom-section">
-      <div class="traveler-label">基础信息</div>
-      <el-form label-width="100px">
-        <!-- 将申请人和申请类型放在一个 div 中，实现一行展示 -->
-        <div class="inline-group">
-          <el-form-item label="申请人">
-            <el-input v-model="applicant"></el-input>
-          </el-form-item>
-          <el-form-item label="申请类型">
-            <el-select v-model="applyType" placeholder="请选择">
-              <el-option label="选项1" value="option1"></el-option>
-              <el-option label="选项2" value="option2"></el-option>
-            </el-select>
-          </el-form-item>
+    <el-card class="common-card">
+      <div class="bottom-section">
+        <div class="traveler-label">
+          <span class="color-block"></span>
+          基本信息
         </div>
+        <el-form :model="basicFormData" label-width="100px" label-position="top" :rules="rules">
+          <div class="inline-group">
+            <el-form-item label="申请人" class="width-45" prop="applicant">
+              <el-input v-model="basicFormData.applicant"></el-input>
+            </el-form-item>
+            <el-form-item label="申请类型" class="width-45" prop="applyType">
+              <el-select v-model="basicFormData.applyType" placeholder="请选择" class="width-100">
+                <el-option v-for="item in applyTypeList" :key="item.value" :label="item.label" :value="item.value"></el-option>
+              </el-select>
+            </el-form-item>
+          </div>
 
-        <!-- 将出行时间范围和费用承担部门放在一个 div 中，实现一行展示 -->
-        <div class="inline-group">
-          <el-form-item label="出行时间范围">
-            <el-date-picker
-                v-model="dateRange"
+          <div class="inline-group">
+            <el-form-item label="出行时间范围" class="width-45" prop="dateRange">
+              <el-date-picker
+                class="width-100"
+                v-model="basicFormData.dateRange"
                 type="daterange"
                 range-separator="至"
                 start-placeholder="开始日期"
-                end-placeholder="结束日期">
-            </el-date-picker>
-          </el-form-item>
-          <el-form-item label="费用承担部门">
-            <el-select v-model="feeDepart" placeholder="请选择" @focus="fetchApiOptions">
-              <el-option v-for="option in departmentList" :key="option.value" :label="option.label"
-                         :value="option.value"></el-option>
-            </el-select>
-          </el-form-item>
-        </div>
+                end-placeholder="结束日期"
+              >
+              </el-date-picker>
+            </el-form-item>
+            <el-form-item label="费用承担部门" class="width-45" prop="feeDepart">
+              <el-select v-model="basicFormData.feeDepart" placeholder="请选择" @focus="fetchApiOptions" class="width-100">
+                <el-option
+                  v-for="option in departmentList"
+                  :key="option.value"
+                  :label="option.label"
+                  :value="option.value"
+                ></el-option>
+              </el-select>
+            </el-form-item>
+          </div>
 
-        <!-- 事由保持不变 -->
-        <el-form-item label="事由">
-          <el-input type="textarea" v-model="remark" :rows="6"></el-input>
-        </el-form-item>
-      </el-form>
-    </div>
+          <div class="inline-group">
+            <el-form-item label="差旅目的" class="width-45" prop="purpose" v-if="basicFormData.applyType == 1">
+              <el-select v-model="basicFormData.purpose" placeholder="请选择" @focus="fetchApiOptions" class="width-100">
+                <el-option
+                  v-for="option in purposeList"
+                  :key="option.value"
+                  :label="option.label"
+                  :value="option.value"
+                ></el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="项目" class="width-45" prop="project">
+              <el-input v-model="basicFormData.project"></el-input>
+            </el-form-item>
+          </div>
+
+          <el-form-item label="事由" prop="remark">
+            <el-input type="textarea" v-model="basicFormData.remark" :rows="6"></el-input>
+          </el-form-item>
+        </el-form>
+      </div>
+    </el-card>
   </div>
 </template>
 
@@ -69,108 +81,117 @@
 export default {
   data() {
     return {
-      applicant: '',
-      applyType: '',
-      dateRange: [],
-      feeDepart: '',
-      remark: '',
+      basicFormData: {
+        applicant: '',
+        applyType: '',
+        dateRange: [],
+        feeDepart: '',
+        purpose: '',
+        project: '',
+        remark: '',
+      },
+      applyTypeList: [
+        { label: '差旅申请', value: 1 },
+        { label: '异地派遣', value: 2 },
+      ],
+      purposeList: [
+        { label: '普通差旅', value: 1 },
+        { label: '内部会议', value: 2 },
+      ],
       departmentList: [], // 初始化为空数组，等待从后端获取数据填充
-      username: '' // 初始化为空字符串，用于存储当前登录用户名
-    };
+      username: '', // 初始化为空字符串，用于存储当前登录用户名
+      rules: {
+        applicant: [{ required: true, message: '请输入申请人', trigger: 'blur' }],
+        applyType: [{ required: true, message: '请选择申请类型', trigger: 'change' }],
+        dateRange: [{ type: 'date', required: true, message: '请选择日期', trigger: 'change' }],
+        feeDepart: [{ type: 'array', required: true, message: '请选择费用承担部门', trigger: 'change' }],
+        purpose: [{ required: true, message: '请选择差旅目的', trigger: 'change' }],
+        remark: [{ required: true, message: '请填写事由', trigger: 'blur' }],
+      },
+    }
   },
   created() {
-    this.fetchCurrentUser();
-    this.fetchApiOptions(); // 页面加载时默认请求一次接口选项
+    this.fetchCurrentUser()
+    this.fetchApiOptions() // 页面加载时默认请求一次接口选项
   },
   methods: {
     goBack() {
-      this.$router.go(-1);
+      this.$router.go(-1)
     },
-    save() {
+    saveHandler() {
       // Handle save action
     },
-    submit() {
+    submitHandler() {
       // Handle submit action
     },
-    addOrEdit() {
-      // Handle add or edit action
-    },
     fetchCurrentUser() {
-      sessionStorage.getItem("loggedName")
+      sessionStorage.getItem('loggedName')
     },
     fetchApiOptions() {
       // 假设后端返回格式为 [{ label: '接口1', value: 'api1' }, { label: '接口2', value: 'api2' }]
-      this.$http.post('/api/apiOptions')
-          .then(response => {
-            this.departmentList = response.data;
-          })
-          .catch(error => {
-            console.error('Failed to fetch API options:', error);
-          });
-    }
-  }
-};
+      this.$http
+        .post('/api/apiOptions')
+        .then((response) => {
+          this.departmentList = response.data
+        })
+        .catch((error) => {
+          console.error('Failed to fetch API options:', error)
+        })
+    },
+  },
+}
 </script>
 
-<style scoped>
-.container {
-  padding: 20px;
+<style scoped lang="less">
+.page-wrapper {
+  min-height: 100%;
+  padding: 40px;
+  background: #f5f5f5;
+  box-sizing: border-box;
 }
 
-
 .top-section {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  .flex_arrange(row, space-between);
   margin-bottom: 20px;
 }
 
 .middle-section {
   padding: 20px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column; /* 确保子元素垂直堆叠 */
+  .flex_arrange(column);
 }
-
 
 .bottom-section {
   padding: 20px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column; /* 确保子元素垂直堆叠 */
-}
-
-.title {
-  display: flex;
-  align-items: center;
-}
-
-.title span {
-  margin-right: 10px;
-}
-
-.title img {
-  width: 20px;
-  height: 20px;
-  margin-right: 10px;
 }
 
 .traveler-label {
-  margin-bottom: 5px;
+  margin-bottom: 20px;
+  .common-title;
+  font-size: 26px;
+  .flex_arrange(row, flex-start);
+  .color-block {
+    display: inline-block;
+    width: 6px;
+    height: 16px;
+    background: @primary-color;
+    margin-right: 12px;
+  }
 }
-
-.traveler-info {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
 .inline-group {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 10px; /* 在表单项之间添加间距 */
+  .flex_arrange(row, space-between);
+  /* 在表单项之间添加间距 */
+  .width-45 {
+    width: 45%;
+  }
+  .width-100 {
+    width: 100%;
+  }
 }
-
+/deep/ .el-form-item__label {
+  font-size: 20px;
+}
+.submit-btn {
+  background: @primary-color;
+  color: @white-color;
+}
 </style>
