@@ -20,7 +20,8 @@
               <el-input v-model="query.no" clearable placeholder="请输入单号"></el-input>
             </el-form-item>
             <el-form-item style="width: 15%">
-              <el-button plain class="search-btn" @click="search" icon="el-icon-search">查询</el-button>
+              <el-button plain class="search-btn" @click="goToDetail" icon="el-icon-search">查询</el-button>
+              <!-- <el-button plain class="search-btn" @click="search" icon="el-icon-search">查询</el-button> -->
             </el-form-item>
           </div>
         </el-form>
@@ -70,7 +71,9 @@
                 <el-button type="text" @click="editInfo(scope.row)" class="search-btn">查看</el-button>
               </template>
             </el-table-column>
-            <div slot="empty">暂无数据</div>
+            <div slot="empty">
+              <el-empty description="暂无数据"></el-empty>
+            </div>
           </el-table>
 
           <!--分页功能-->
@@ -134,7 +137,7 @@
                 <el-button type="text" @click="editInfo(scope.row)" class="search-btn">审批追踪</el-button>
               </template>
             </el-table-column>
-            <div slot="empty">暂无数据</div>
+            <div slot="empty"><el-empty description="暂无数据"></el-empty></div>
           </el-table>
 
           <!--分页功能-->
@@ -154,13 +157,19 @@
         </div>
       </el-card>
     </el-main>
+    <ApproveTrace :traceVisible="traceVisible"></ApproveTrace>
   </el-container>
 </template>
 
 <script>
+import ApproveTrace from '../../components/ApproveTrace.vue'
 export default {
+  components: {
+    ApproveTrace,
+  },
   data() {
     return {
+      traceVisible: false,
       uid: sessionStorage.getItem('uid'),
       currentTab: 'tab1',
       loadingTab1: false,
@@ -379,6 +388,11 @@ export default {
       } else if (newTab === 'tab2') {
         this.fetchDataForTab2()
       }
+    },
+    goToDetail(row) {
+      // TODO 传递id
+      // this.$router.push('/homeApprovalDetail')
+      this.traceVisible = true
     },
   },
   watch: {},

@@ -2,31 +2,52 @@
   <el-container>
     <!-- Main Section -->
     <el-main>
-      <div class="tabs">
-        <el-button @click="currentTab = 'tab1'">报销单({{ bxdCount }})</el-button>
-        <el-button @click="currentTab = 'tab2'">申请单({{ sqdCount }})</el-button>
-        <el-button @click="currentTab = 'tab2'">问题单据({{ problemRecipe }})</el-button>
-      </div>
+      <el-tabs v-model="currentTab" @tab-click="changeCurrentTab">
+        <el-tab-pane :label="`报销单${bxdCount}`" name="tab1"></el-tab-pane>
+        <el-tab-pane :label="`申请单${sqdCount}`" name="tab2"></el-tab-pane>
+      </el-tabs>
 
-      <el-form :inline="true" :model="query" class="demo-form-inline">
-        <div id="search">
-          <el-form-item label="提交人:">
-            <el-input v-model="query.ename" clearable placeholder="请输入提交人"></el-input>
-          </el-form-item>
-          <el-form-item label="事由:">
-            <el-input v-model="query.ename" clearable placeholder="请输入事由"></el-input>
-          </el-form-item>
-          <el-form-item label="单号:">
-            <el-input v-model="query.ename" clearable placeholder="请输入单号"></el-input>
-          </el-form-item>
-          <el-form-item>
-            <el-button type="primary" @click="search" icon="el-icon-search">查询 </el-button>
-          </el-form-item>
-        </div>
-      </el-form>
+      <el-card class="common-card" style="text-align: left">
+        <el-form :inline="true" :model="query" class="demo-form-inline">
+          <div id="search">
+            <el-form-item label="提交人:" style="width: 25%">
+              <el-input v-model="query.name" clearable placeholder="请输入提交人"></el-input>
+            </el-form-item>
+            <el-form-item label="事由:" style="width: 25%">
+              <el-input v-model="query.reason" clearable placeholder="请输入事由"></el-input>
+            </el-form-item>
+            <el-form-item :label="currentTab == 'tab1' ? '报销单号:' : '申请单号:'" style="width: 25%">
+              <el-input v-model="query.no" clearable placeholder="请输入单号"></el-input>
+            </el-form-item>
+            <el-form-item :label="currentTab == 'tab1' ? '报销人:' : '申请人:'" style="width: 25%">
+              <el-input v-model="query.no" clearable placeholder="请输入单号"></el-input>
+            </el-form-item>
+            <el-form-item label="创建时间" style="width: 30%">
+              <el-date-picker
+                v-model="query.dateRange"
+                type="daterange"
+                range-separator="至"
+                start-placeholder="开始日期"
+                end-placeholder="结束日期"
+              >
+              </el-date-picker>
+            </el-form-item>
+            <el-form-item style="width: 25%">
+              <div class="bills-range-label">单据范围：</div>
+              <el-radio-group v-model="query.billsRange">
+                <el-radio :label="1">{{ currentTab == 'tab1' ? '全部报销单' : '全部申请单' }}</el-radio>
+                <el-radio :label="2">{{ currentTab == 'tab1' ? '我的报销单' : '我的申请单' }}</el-radio>
+              </el-radio-group>
+            </el-form-item>
+            <el-form-item style="width: 15%">
+              <el-button plain class="search-btn" @click="search" icon="el-icon-search">查询</el-button>
+            </el-form-item>
+          </div>
+        </el-form>
+      </el-card>
 
-      <div v-if="currentTab === 'tab1'">
-        <div style="position: relative; left: -540px">报销单列表</div>
+      <el-card class="common-card" style="margin-top: 20px" v-if="currentTab === 'tab1'">
+        <div class="main-title-row">报销单列表</div>
         <div v-if="loadingTab1"></div>
         <div v-else>
           <!--表格-->
@@ -51,30 +72,25 @@
             </el-table-column>
             <el-table-column prop="travelDesc" label="审核状态" width="120" align="center" :formatter="descFormat">
             </el-table-column>
-            <el-table-column
-              prop="reimbursementTotal"
-              width="120"
-              label="事由"
-              align="center"
-              :formatter="reimbursementTotalFormat"
-            >
+            <el-table-column prop="reimbursementTotal" label="事由" align="center" :formatter="reimbursementTotalFormat">
             </el-table-column>
             <el-table-column prop="reimbursementDate" width="120" label="报销人" align="center" :formatter="submitTimeFormat">
             </el-table-column>
             <el-table-column prop="reimbursementDate" width="120" label="提交人" align="center" :formatter="submitTimeFormat">
             </el-table-column>
-            <el-table-column prop="reimbursementDate" label="最后更新时间" width="120" align="center" :formatter="descFormat">
+            <el-table-column prop="reimbursementDate" label="最后更新时间" width="160" align="center" :formatter="descFormat">
             </el-table-column>
-            <el-table-column prop="reimbursementDate" label="创建时间" width="120" align="center" :formatter="descFormat">
+            <el-table-column prop="reimbursementDate" label="创建时间" width="160" align="center" :formatter="descFormat">
             </el-table-column>
-            <el-table-column label="操作" width="200" align="center">
+            <el-table-column label="操作" width="280" align="center">
               <template slot-scope="scope">
-                <el-button size="small" @click="editInfo(scope.row)">编辑 </el-button>
-                <el-button size="small" style="margin-left: 0" @click="editInfo(scope.row)">删除 </el-button>
-                <el-button size="small" style="margin-left: 0" @click="editInfo(scope.row)">审批 </el-button>
+                <el-button type="text" @click="editInfo(scope.row)">查看</el-button>
+                <el-button type="text" @click="editInfo(scope.row)">编辑</el-button>
+                <el-button type="text" style="margin-left: 0" @click="editInfo(scope.row)">审批追踪</el-button>
+                <el-button type="text" style="margin-left: 0" @click="editInfo(scope.row)">删除</el-button>
               </template>
             </el-table-column>
-            <div slot="empty"></div>
+            <div slot="empty"><el-empty description="暂无数据"></el-empty></div>
           </el-table>
 
           <!--分页功能-->
@@ -92,18 +108,89 @@
             </el-pagination>
           </div>
         </div>
-      </div>
-      <div v-if="currentTab === 'tab2'">
-        <div style="position: relative; left: -540px">申请单列表</div>
-        <div v-if="loadingTab2"></div>
-        <div v-else></div>
-      </div>
-      <div v-if="currentTab === 'tab3'">
-        <div style="position: relative; left: -540px">问题单据列表</div>
-        <div v-if="loadingTab3"></div>
-        <div v-else></div>
-      </div>
+      </el-card>
+
+      <el-card class="common-card" style="margin-top: 20px" v-if="currentTab === 'tab2'">
+        <div class="main-title-row">申请单列表</div>
+        <div v-if="loadingTab1"></div>
+        <div v-else>
+          <!--表格-->
+          <el-table
+            ref="reimbursementTable"
+            :data="tab1Data"
+            stripe
+            style="width: 100%; font-size: 15px"
+            height="550px"
+            @select="selectOneTravelInfo"
+            @select-all="selectAllTravelInfo"
+            :header-cell-style="{ background: '#bababe', color: 'black' }"
+            :border="true"
+            :row-key="getRowKeys"
+          >
+            <!--复选框-->
+
+            <el-table-column prop="travelId" label="申请单号" width="120" align="center"> </el-table-column>
+            <el-table-column prop="travelDesc" label="业务类型" width="120" align="center" :formatter="descFormat">
+            </el-table-column>
+            <el-table-column prop="travelDesc" label="审核状态" width="120" align="center" :formatter="descFormat">
+            </el-table-column>
+            <el-table-column prop="reimbursementTotal" label="事由" align="center" :formatter="reimbursementTotalFormat">
+            </el-table-column>
+            <el-table-column prop="reimbursementDate" width="120" label="申请人" align="center" :formatter="submitTimeFormat">
+            </el-table-column>
+            <el-table-column prop="reimbursementDate" width="120" label="提交人" align="center" :formatter="submitTimeFormat">
+            </el-table-column>
+            <el-table-column prop="reimbursementDate" label="最后更新时间" width="160" align="center" :formatter="descFormat">
+            </el-table-column>
+            <el-table-column prop="reimbursementDate" label="创建时间" width="160" align="center" :formatter="descFormat">
+            </el-table-column>
+            <el-table-column label="操作" width="280" align="center">
+              <template slot-scope="scope">
+                <el-button type="text" @click="editInfo(scope.row)">查看</el-button>
+                <el-button type="text" @click="editInfo(scope.row)">编辑</el-button>
+                <el-button type="text" style="margin-left: 0" @click="editInfo(scope.row)">审批追踪</el-button>
+                <el-button type="text" style="margin-left: 0" @click="editInfo(scope.row)">删除</el-button>
+              </template>
+            </el-table-column>
+            <div slot="empty"><el-empty description="暂无数据"></el-empty></div>
+          </el-table>
+
+          <!--分页功能-->
+          <div id="page">
+            <el-pagination
+              @size-change="handleSizeChange"
+              @current-change="handleCurrentChange"
+              :current-page="query.page"
+              :page-sizes="[10, 20, 50, 100]"
+              :page-size="query.limit"
+              layout="total, sizes, prev, pager, next, jumper"
+              :total="total"
+              :background="true"
+            >
+            </el-pagination>
+          </div>
+        </div>
+      </el-card>
     </el-main>
+    <el-dialog title="基本信息" :visible.sync="showDialog">
+      <el-descriptions class="margin-top" title="" :column="2" direction="vertical">
+        <el-descriptions-item label="申请人"> <span class="descriptions-value">kooriookami</span></el-descriptions-item>
+        <el-descriptions-item label="申请类型"><span class="descriptions-value">18100000000</span></el-descriptions-item>
+        <el-descriptions-item label="出行时间范围"><span class="descriptions-value">苏州市</span></el-descriptions-item>
+        <el-descriptions-item label="费用承担部门"><span class="descriptions-value">学校</span> </el-descriptions-item>
+        <el-descriptions-item label="差旅目的"><span class="descriptions-value">学校</span></el-descriptions-item>
+        <el-descriptions-item label="项目"
+          ><span class="descriptions-value">江苏省苏州市吴中区吴中大道</span></el-descriptions-item
+        >
+        <el-descriptions-item label="事由" :span="2"
+          ><span class="descriptions-value">江苏省苏州市吴中区吴中大道</span></el-descriptions-item
+        >
+        <el-descriptions-item label="拒绝原因" :span="2"
+          ><span class="descriptions-value">江苏省苏州市吴中区吴中大道</span></el-descriptions-item
+        >
+      </el-descriptions>
+      <span slot="footer" class="dialog-footer"> </span>
+    </el-dialog>
   </el-container>
 </template>
 
@@ -111,12 +198,31 @@
 export default {
   data() {
     return {
+      showDialog: false,
       currentTab: 'tab1',
       loadingTab1: false,
       loadingTab2: false,
       loadingTab3: false,
       tab1Data: [],
       tab2Data: [],
+      billsStatusList: [
+        {
+          label: '已付款',
+          value: 1,
+        },
+        {
+          label: '未提交',
+          value: 2,
+        },
+        {
+          label: '已驳回',
+          value: 3,
+        },
+        {
+          label: '审批中',
+          value: 4,
+        },
+      ],
       // 点击查看时当前行差旅信息的编号
       selectedTravelId: '',
       // 被选中项的集合
@@ -167,6 +273,7 @@ export default {
       query: {
         empno: sessionStorage.getItem('uid'),
         reimbursementDate: '',
+        billsRange: 1,
         // 默认当前页为 1
         page: 1,
         limit: 6,
@@ -394,12 +501,18 @@ export default {
       this.query.page = 1
       this.getTravelInfoList()
     },
-  },
-  watch: {
-    currentTab(newValue) {
-      if (newValue === 'tab1') {
+    changeCurrentTab(newTab) {
+      this.query = {
+        name: '',
+        reason: '',
+        no: '',
+        billsRange: 1,
+        page: 1,
+        limit: 6,
+      }
+      if (newTab === 'tab1') {
         this.fetchDataForTab1()
-      } else if (newValue === 'tab2') {
+      } else if (newTab === 'tab2') {
         this.fetchDataForTab2()
       }
     },
@@ -410,42 +523,38 @@ export default {
 }
 </script>
 
-<style scoped>
-.container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  //padding: 5px;
+<style scoped lang="less">
+.search-btn {
+  color: @primary-color;
 }
-
-.blue {
-  background-color: #a5c8d3;
+.bills-range-label {
+  color: #999999;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
 }
-
-.yellow {
-  background-color: #e3e3b8;
+/deep/.el-descriptions :not(.is-bordered) .el-descriptions-item__cell {
+  color: #999999;
 }
-
-.pink {
-  background-color: #e7c5c9;
+.descriptions-value {
+  color: #333;
+  font-size: 15px;
+  line-height: 30px;
 }
-
-.separator-line {
-  width: 100%;
-  height: 1px;
-  background-color: #ccc;
+/deep/.el-radio__input.is-checked .el-radio__inner {
+  border-color: #ff7345;
+  background: #ff7345;
 }
-
-.tabs {
-  display: flex;
-  justify-content: start;
-  border-bottom: 1px solid #ccc;
-  padding-bottom: 10px;
+/deep/.el-radio__label {
+  color: #999999;
+  font-size: 14px;
+  font-weight: 600;
 }
-
-.tabs el-button {
-  margin-right: 10px;
+.main-title-row {
+  font-size: 18px;
+  text-align: left;
+  font-weight: 900;
+  margin-bottom: 20px;
 }
 
 .button-row {

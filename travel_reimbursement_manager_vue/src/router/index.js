@@ -14,6 +14,7 @@ import RecipeSQD from '../views/recipe/RecipeSQD.vue'
 import RecipeBXD from '../views/recipe/RecipeBXD.vue'
 import WorkOverTime from '../views/recipe/WorkOvertime.vue'
 import ReimbursementV2 from '../views/recipe/Reimbursement.vue'
+import HomeApprovalDetail from '../views/home/HomeApprovalDetail.vue'
 
 Vue.use(VueRouter)
 
@@ -88,6 +89,11 @@ const routes = [
     path: '/reimbursement',
     name: 'Reimbursement',
     component: ReimbursementV2,
+  },
+  {
+    path: '/homeApprovalDetail',
+    name: 'HomeApprovalDetail',
+    component: HomeApprovalDetail,
   },
   {
     path: '/blankPage',

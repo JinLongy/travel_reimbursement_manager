@@ -74,7 +74,7 @@
                 <el-button type="text" style="margin-left: 0" @click="approval(scope.row)">审批 </el-button>
               </template>
             </el-table-column>
-            <div slot="empty">暂无数据</div>
+            <div slot="empty"><el-empty description="暂无数据"></el-empty></div>
           </el-table>
 
           <!--分页功能-->

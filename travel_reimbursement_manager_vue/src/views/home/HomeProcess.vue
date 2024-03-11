@@ -1,144 +1,74 @@
 <template>
-  <el-container>
-    <!-- Main Section -->
-    <el-main>
-      <div class="tabs">
-        <el-button @click="currentTab = 'tab1'">流程列表({{ modelCount }})</el-button>
-        <el-button @click="currentTab = 'tab2'">实例列表({{ instanceCount }})</el-button>
+  <div>
+    <el-card class="common-card">
+      <div class="header">
+        <div class="main-title-row">流程列表</div>
+        <el-button @click="showDialog = true" class="submit-btn">新增流程</el-button>
       </div>
 
-      <div class="content">
-        <router-view></router-view>
-      </div>
-
-      <el-form :inline="true" :model="query" class="demo-form-inline">
-        <div id="search">
-          <el-form-item label="模型:">
-            <el-input v-model="query.modelName" clearable placeholder="请输入模型"></el-input>
-          </el-form-item>
-          <el-form-item>
-            <el-button type="primary" @click="search" icon="el-icon-search">查询 </el-button>
-            <el-button type="primary" @click="showDialog = true">新增</el-button>
-          </el-form-item>
+      <!--表格-->
+      <el-table
+        ref="reimbursementTable"
+        :data="tab1Data"
+        stripe
+        style="width: 100%; font-size: 15px"
+        height="550px"
+        @select="selectOneTravelInfo"
+        @select-all="selectAllTravelInfo"
+        :header-cell-style="{ background: '#bababe', color: 'black' }"
+        :border="true"
+        :row-key="getRowKeys"
+      >
+        <el-table-column prop="id" label="序号" width="100" align="center"> </el-table-column>
+        <el-table-column prop="modelKey" label="流程名称" align="center"> </el-table-column>
+        <el-table-column prop="modelName" label="业务场景" align="center"> </el-table-column>
+        <el-table-column prop="userName" width="120" label="提交人" align="center"> </el-table-column>
+        <el-table-column prop="userName" width="120" label="更新人" align="center"> </el-table-column>
+        <el-table-column prop="status" label="状态" width="100" align="center" :formatter="statusFormatter"> </el-table-column>
+        <el-table-column prop="updateTime" label="最后更新时间" width="180" align="center" :formatter="formatDate">
+        </el-table-column>
+        <el-table-column prop="createTime" label="创建时间" width="180" align="center" :formatter="formatDate"> </el-table-column>
+        <el-table-column label="操作" width="280" align="center">
+          <template slot-scope="scope">
+            <el-button type="text" @click="viewModelXml(scope.row)"> 查看 </el-button>
+            <el-button type="text" @click="editInfo(scope.row)" :disabled="scope.row.status === 1"> 编辑 </el-button>
+          </template>
+        </el-table-column>
+        <div slot="empty">
+          <el-empty description="暂无数据"></el-empty>
         </div>
+      </el-table>
+
+      <!--分页功能-->
+      <div id="page">
+        <el-pagination
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :current-page="query.page"
+          :page-sizes="[10, 20, 50, 100]"
+          :page-size="query.limit"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="total"
+          :background="true"
+        >
+        </el-pagination>
+      </div>
+    </el-card>
+    <el-dialog title="新增流程" :visible.sync="showDialog">
+      <el-form :model="xmlSaveRequest">
+        <el-form-item label="流程名称">
+          <el-input v-model="xmlSaveRequest.modelName"></el-input>
+        </el-form-item>
+        <el-form-item label="业务场景">
+          <el-input v-model="xmlSaveRequest.modelKey"></el-input>
+        </el-form-item>
       </el-form>
-      <el-dialog title="新增流程模型定义" :visible.sync="showDialog">
-        <el-form :model="xmlSaveRequest">
-          <el-form-item label="流程模型名称">
-            <el-input v-model="xmlSaveRequest.modelName"></el-input>
-          </el-form-item>
-          <el-form-item label="流程模型Key">
-            <el-input v-model="xmlSaveRequest.modelKey"></el-input>
-          </el-form-item>
-        </el-form>
-        <span slot="footer" class="dialog-footer">
-          <el-button @click="cancelAddModel">取 消</el-button>
-          <el-button type="primary" @click="saveProcessModel">保 存</el-button>
-        </span>
-      </el-dialog>
-
-      <div v-if="currentTab === 'tab1'">
-        <div style="position: relative; left: -540px">流程列表</div>
-        <div v-if="loadingTab1"></div>
-        <div v-else>
-          <!--表格-->
-          <el-table
-            ref="reimbursementTable"
-            :data="tab1Data"
-            stripe
-            style="width: 100%; font-size: 15px"
-            height="550px"
-            @select="selectOneTravelInfo"
-            @select-all="selectAllTravelInfo"
-            :header-cell-style="{ background: '#bababe', color: 'black' }"
-            :border="true"
-            :row-key="getRowKeys"
-          >
-            <el-table-column prop="id" label="流程ID" width="100" align="center"> </el-table-column>
-            <el-table-column prop="modelKey" label="模型主键" width="250" align="center"> </el-table-column>
-            <el-table-column prop="modelName" label="模型名称" width="200" align="center"> </el-table-column>
-            <el-table-column prop="status" label="状态" width="90" align="center" :formatter="statusFormatter"> </el-table-column>
-            <el-table-column prop="userName" width="90" label="提交人" align="center"> </el-table-column>
-            <el-table-column prop="createTime" label="创建时间" width="180" align="center" :formatter="formatDate">
-            </el-table-column>
-            <el-table-column prop="updateTime" label="最后更新时间" width="180" align="center" :formatter="formatDate">
-            </el-table-column>
-            <el-table-column label="操作" width="200" align="center">
-              <template slot-scope="scope">
-                <el-button size="small" @click="viewModelXml(scope.row)"> 查看 </el-button>
-                <el-button size="small" @click="editInfo(scope.row)" :disabled="scope.row.status === 1"> 编辑 </el-button>
-                <el-button size="small" @click="publish(scope.row)" :disabled="scope.row.status === 1"> 发布 </el-button>
-                <el-button size="small" style="margin-left: 0" @click="delete scope.row" :disabled="scope.row.status === 1"
-                  >删除
-                </el-button>
-              </template>
-            </el-table-column>
-            <div slot="empty"></div>
-          </el-table>
-
-          <!--分页功能-->
-          <div id="page">
-            <el-pagination
-              @size-change="handleSizeChange"
-              @current-change="handleCurrentChange"
-              :current-page="query.page"
-              :page-sizes="[10, 20, 50, 100]"
-              :page-size="query.limit"
-              layout="total, sizes, prev, pager, next, jumper"
-              :total="total"
-              :background="true"
-            >
-            </el-pagination>
-          </div>
-        </div>
-      </div>
-      <div v-if="currentTab === 'tab2'">
-        <div style="position: relative; left: -540px">实例列表</div>
-        <div v-if="loadingTab2"></div>
-        <div v-else>
-          <!--表格-->
-          <el-table
-            :data="tab2Data"
-            stripe
-            style="width: 100%; font-size: 15px"
-            height="550px"
-            @select="selectOneTravelInfo"
-            @select-all="selectAllTravelInfo"
-            :header-cell-style="{ background: '#bababe', color: 'black' }"
-            :border="true"
-            :row-key="getRowKeys"
-          >
-            <el-table-column prop="processInstanceId" label="实例id" width="240" align="center"> </el-table-column>
-            <el-table-column prop="processDefinitionId" label="部署版本" width="300" align="center"> </el-table-column>
-            <el-table-column prop="startTime" width="120" label="开始时间" align="center"> </el-table-column>
-            <el-table-column prop="isEnded" width="120" label="结束" align="center" :formatter="instanceFormatter">
-            </el-table-column>
-            <el-table-column label="操作" width="200" align="center">
-              <template slot-scope="scope">
-                <el-button size="small" @click="queryInstance(scope.row)"> 查看 </el-button>
-              </template>
-            </el-table-column>
-            <div slot="empty"></div>
-          </el-table>
-
-          <!--分页功能-->
-          <div id="page">
-            <el-pagination
-              @size-change="handleSizeChange"
-              @current-change="handleCurrentChange"
-              :current-page="query.page"
-              :page-sizes="[10, 20, 50, 100]"
-              :page-size="query.limit"
-              layout="total, sizes, prev, pager, next, jumper"
-              :total="total"
-              :background="true"
-            >
-            </el-pagination>
-          </div>
-        </div>
-      </div>
-    </el-main>
-  </el-container>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="cancelAddModel">取 消</el-button>
+        <el-button @click="saveProcessModel" class="submit-btn">确 定</el-button>
+      </span>
+    </el-dialog>
+  </div>
 </template>
 
 <script>
@@ -146,11 +76,8 @@ export default {
   data() {
     return {
       showDialog: false,
-      currentTab: 'tab1',
       loadingTab1: false,
-      loadingTab2: false,
       tab1Data: [],
-      tab2Data: [],
       // 已登录的用户名
       loggedName: sessionStorage.getItem('loggedName'),
       dialogTableVisible: false,
@@ -187,15 +114,6 @@ export default {
     }
   },
   methods: {
-    recipeSQD() {
-      this.$router.push('/recipeSQD')
-    },
-    recipeBDX() {
-      this.$router.push('/recipeBXD')
-    },
-    workOverTime() {
-      this.$router.push('/workOverTime')
-    },
     reimbursement() {
       this.$router.push('/reimbursement')
     },
@@ -217,26 +135,6 @@ export default {
         })
         .finally(() => {
           this.loadingTab1 = false
-        })
-    },
-    fetchDataForTab2() {
-      this.loadingTab2 = true
-      let data = {
-        empno: 3,
-        page: 1,
-        limit: 10,
-      }
-      this.$http
-        .get('/instanceList')
-        .then((response) => {
-          this.tab2Data = response.data
-          this.instanceCount = this.tab2Data.length
-        })
-        .catch((error) => {
-          console.error('Error fetching data for tab2:', error)
-        })
-        .finally(() => {
-          this.loadingTab2 = false
         })
     },
     saveProcessModel() {
@@ -384,64 +282,25 @@ export default {
       this.getModelList()
     },
   },
-  watch: {
-    currentTab(newValue) {
-      if (newValue === 'tab1') {
-        this.fetchDataForTab1()
-      } else if (newValue === 'tab2') {
-        this.fetchDataForTab2()
-      }
-    },
-  },
+  watch: {},
   created() {
     this.fetchDataForTab1()
-    this.fetchDataForTab2()
   },
 }
 </script>
 
-<style scoped>
-.container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+<style scoped lang="less">
+.header {
+  .flex_arrange(row, space-between);
+  margin-bottom: 20px;
+  .main-title-row {
+    font-size: 18px;
+    text-align: left;
+    font-weight: 900;
+  }
 }
-
-.blue {
-  background-color: #a5c8d3;
-}
-
-.yellow {
-  background-color: #e3e3b8;
-}
-
-.pink {
-  background-color: #e7c5c9;
-}
-
-.separator-line {
-  width: 100%;
-  height: 1px;
-  background-color: #ccc;
-}
-
-.tabs {
-  display: flex;
-  justify-content: start;
-  border-bottom: 1px solid #ccc;
-  padding-bottom: 10px;
-}
-
-.tabs el-button {
-  margin-right: 10px;
-}
-
-.button-row {
-  display: flex;
-}
-
-.bjs-powered-by {
-  display: none !important;
+.submit-btn {
+  background: @primary-color;
+  color: @white-color;
 }
 </style>
