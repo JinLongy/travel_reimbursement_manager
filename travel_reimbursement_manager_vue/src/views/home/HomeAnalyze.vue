@@ -9,9 +9,9 @@
       </div>
       <div class="chart-row">
         <!-- 每月报销金额分布图 -->
-        <div :style="{ height: height, width: width, flex: 1 }" :id="id" class="chart"></div>
+        <div :style="{ height: height, width: width }" id="lineChart" class="chart"></div>
         <!-- 全年报销类型分布图 -->
-        <div :style="{ height: height, width: width, flex: 1 }" id="bar" class="chart"></div>
+        <div :style="{ height: height, width: width }" id="barChart" class="chart"></div>
         <div style="width: 220px">
           <el-table
             :data="tableData"
@@ -37,27 +37,11 @@
 import * as echarts from 'echarts'
 
 export default {
-  name: 'echarts',
-  props: {
-    height: {
-      type: String,
-      default: '400px',
-    },
-    width: {
-      type: String,
-      default: '500px',
-    },
-    id: {
-      type: String,
-      default: 'demo',
-    },
-    top3: {
-      type: String,
-      default: 'demo2',
-    },
-  },
+  name: 'HomeAnalyze',
   data() {
     return {
+      height: '400px',
+      width: '500px',
       totalAmountList: [
         { title: '已报销金额', amount: '9346.16', key: '' },
         { title: '待报销金额', amount: '4216.10', key: '' },
@@ -77,102 +61,60 @@ export default {
   },
   methods: {
     drawLine() {
-      let myChart = echarts.init(document.getElementById(this.id))
+      let myChart = echarts.init(document.getElementById('lineChart'))
       myChart.setOption({
-        title: { text: '费用数据分析' },
-        tooltip: {},
+        title: {
+          text: '每月报销金额分布图',
+          left: 'center',
+          bottom: '5',
+        },
+        tooltip: {
+          trigger: 'item',
+        },
         xAxis: {
           type: 'category',
-          data: this.firstx,
+          data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
         },
-        yAxis: {},
+        yAxis: {
+          type: 'value',
+        },
         series: [
           {
-            name: '销量',
-            type: 'bar',
-            data: this.firsty,
+            data: [150, 230, 224, 218, 135, 147, 260, 150, 230, 224, 218, 135],
+            type: 'line',
           },
         ],
       })
     },
     show() {
-      this.charts = echarts.init(document.getElementById('bar'))
+      this.charts = echarts.init(document.getElementById('barChart'))
       var option = {
-        color: ['#d84430'],
+        title: {
+          text: '全年报销类型分布图',
+          left: 'center',
+          bottom: '20',
+        },
         tooltip: {
-          show: true,
+          trigger: 'item',
         },
-        yAxis: {
-          axisTick: {
-            show: true,
-          },
-          axisLine: {
-            show: true,
-          },
-          axisLabel: {
-            inside: true,
-            verticalAlign: 'bottom',
-            lineHeight: 40,
-            color: 'rgba(0,0,0,0.87)',
-            formatter: function (value, index) {
-              if (index > 2) {
-                return '{first|' + value + '}'
-              } else {
-                return '{other|' + value + '}'
-              }
-            },
-            rich: {
-              other: {
-                color: 'rgba(0,0,0,0.87)',
-                opacity: 0.57,
-              },
-              first: {
-                color: 'rgba(0,0,0,0.87)',
-              },
-            },
-          },
-          data: this.yValue,
-        },
-        xAxis: {
-          nameTextStyle: {
-            color: 'rgba(255, 255, 255, 0.8)',
-            align: 'right',
-          },
-          splitLine: {
-            show: false,
-          },
-          axisLine: {
-            show: false,
-          },
-          axisLabel: {
-            color: 'rgba(255, 255, 255, 0.8)',
-          },
-        },
-        grid: {
-          top: '0%',
-          bottom: '0%',
-          left: '0%',
-          right: '0%',
+        legend: {
+          orient: 'vertical',
+          left: 'left',
         },
         series: [
           {
-            barWidth: 15,
-            type: 'bar',
-            data: this.xValue,
-            itemStyle: {
-              normal: {
-                borderRadius: [3, 20, 20, 3],
-                color: function (params) {
-                  if (params.dataIndex === 5) {
-                    return '#d84430'
-                  } else if (params.dataIndex === 4) {
-                    return '#f38237'
-                  } else if (params.dataIndex === 3) {
-                    return '#e2aa20'
-                  } else {
-                    return '#608289'
-                  }
-                },
+            type: 'pie',
+            radius: '50%',
+            data: [
+              { value: 1048, name: '部门团建' },
+              { value: 735, name: '差旅费用' },
+              { value: 580, name: '交通费用' },
+            ],
+            emphasis: {
+              itemStyle: {
+                shadowBlur: 10,
+                shadowOffsetX: 0,
+                shadowColor: 'rgba(0, 0, 0, 0.5)',
               },
             },
           },
@@ -221,28 +163,5 @@ export default {
   > div + div {
     margin-left: 60px;
   }
-}
-
-.chart {
-  flex: 1; /* Occupy equal space within the container */
-  margin-right: 20px; /* Add spacing between charts */
-}
-
-.top3-chart {
-  flex: 1; /* Occupy equal space within the container */
-  display: flex;
-  flex-direction: column; /* Align children vertically */
-}
-
-.chart-header {
-  display: flex;
-  justify-content: center; /* Center-align items horizontally */
-  align-items: center; /* Center-align items vertically */
-  margin-bottom: 10px; /* Add spacing between title and chart */
-}
-
-.chart-title {
-  font-size: 18px;
-  color: rgba(255, 255, 255, 0.8);
 }
 </style>

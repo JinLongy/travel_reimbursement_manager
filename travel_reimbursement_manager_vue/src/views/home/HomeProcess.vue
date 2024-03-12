@@ -3,7 +3,8 @@
     <el-card class="common-card">
       <div class="header">
         <div class="main-title-row">流程列表</div>
-        <el-button @click="showDialog = true" class="submit-btn">新增流程</el-button>
+        <!-- <el-button @click="showDialog = true" class="submit-btn">新增流程</el-button> -->
+        <el-button @click="saveProcessModel" class="submit-btn">新增流程</el-button>
       </div>
 
       <!--表格-->
@@ -54,7 +55,7 @@
         </el-pagination>
       </div>
     </el-card>
-    <el-dialog title="新增流程" :visible.sync="showDialog">
+    <el-dialog title="新增流程" :visible.sync="showDialog" width="400px">
       <el-form :model="xmlSaveRequest">
         <el-form-item label="流程名称">
           <el-input v-model="xmlSaveRequest.modelName"></el-input>
@@ -138,12 +139,13 @@ export default {
         })
     },
     saveProcessModel() {
-      this.xmlSaveRequest.user = sessionStorage.getItem('loggedName')
+      /* this.xmlSaveRequest.user = sessionStorage.getItem('loggedName')
       this.$http.post('/process/saveModelMeta', this.xmlSaveRequest).then((res) => {
         console.log(res)
         this.$message.info('新增模型定义成功，请点击编辑按钮操作流程编辑')
       })
-      this.showDialog = false
+      this.showDialog = false */
+      this.$router.push('/processPanel')
     },
     cancelAddModel() {
       this.xmlSaveRequest.modelKey = null

@@ -60,15 +60,17 @@ const routes = [
         name: 'HomeProcess',
         component: HomeProcess,
       },
-      {
-        path: '/panel',
-        component: () => import('../views/process/panel'),
-      },
-      {
-        path: '/instance',
-        component: () => import('../views/process/instance'),
-      },
     ],
+  },
+  {
+    path: '/processPanel',
+    name: 'ProcessPanel',
+    component: () => import('../views/process/panel'),
+  },
+  {
+    path: '/processInstance',
+    name: 'ProcessInstance',
+    component: () => import('../views/process/instance'),
   },
   {
     path: '/recipeSQD',
