@@ -465,7 +465,7 @@ export default {
           }`)
     },
     changeNodeText() {
-      this.selectCell.attr('label/text', this.nodeText)
+      this.selectCell && this.selectCell.attr('label/text', this.nodeText)
     },
     goBack() {
       this.$router.go(-1)
