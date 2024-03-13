@@ -3,7 +3,7 @@
     <div class="top-section">
       <div class="left" @click="goBack">
         <i class="el-icon-back" style="font-size: 22px"></i>
-        <span class="common-title"> 返回 </span>
+        <span class="common-title">返回</span>
       </div>
       <div class="right">
         <el-button @click="saveHandler" class="submit-btn">保存</el-button>
@@ -11,6 +11,13 @@
     </div>
     <el-card class="common-card">
       <div id="container" style="min-width: 400px; min-height: 600px"></div>
+      <div class="drawer">
+        <el-form label-width="80">
+          <el-form-item label="节点文本">
+            <el-input v-model="nodeText" @change="changeNodeText" style="width: 200px"></el-input>
+          </el-form-item>
+        </el-form>
+      </div>
     </el-card>
   </div>
 </template>
@@ -29,7 +36,12 @@ import insertCss from 'insert-css'
 export default {
   name: 'ProcessPanel',
   data() {
-    return {}
+    return {
+      graph: null,
+      stencil: null,
+      selectCell: null,
+      nodeText: '',
+    }
   },
   created() {},
   mounted() {
@@ -37,11 +49,23 @@ export default {
   },
   methods: {
     init() {
-      // 为了协助代码演示
-      preWork()
-
-      // #region 初始化画布
-      const graph = new Graph({
+      const container = document.getElementById('container')
+      const stencilContainer = document.createElement('div')
+      stencilContainer.id = 'stencil'
+      const graphContainer = document.createElement('div')
+      graphContainer.id = 'graph-container'
+      container.appendChild(stencilContainer)
+      container.appendChild(graphContainer)
+      this.styleInit()
+      this.graphInit()
+      this.stencilInit()
+      this.keyboardInit()
+      this.shapeInit()
+      this.portsInit()
+    },
+    // 初始化画布
+    graphInit() {
+      this.graph = new Graph({
         container: document.getElementById('graph-container'),
         grid: true,
         mousewheel: {
@@ -97,32 +121,30 @@ export default {
           },
         },
       })
-      // #endregion
-
-      // #region 使用插件
-      graph
+      // 使用插件
+      this.graph
         .use(
           new Transform({
             resizing: true,
             rotating: true,
-          })
+          }),
         )
         .use(
           new Selection({
             rubberband: true,
             showNodeSelectionBox: true,
-          })
+          }),
         )
         .use(new Snapline())
         .use(new Keyboard())
         .use(new Clipboard())
         .use(new History())
-      // #endregion
-
-      // #region 初始化 stencil
-      const stencil = new Stencil({
+    },
+    // 初始化 stencil
+    stencilInit() {
+      this.stencil = new Stencil({
         title: '流程图',
-        target: graph,
+        target: this.graph,
         stencilGraphWidth: 200,
         stencilGraphHeight: 180,
         collapsable: true,
@@ -138,96 +160,89 @@ export default {
           rowHeight: 55,
         },
       })
-      document.getElementById('stencil').appendChild(stencil.container)
-      // #endregion
-
-      // #region 快捷键与事件
-      graph.bindKey(['meta+c', 'ctrl+c'], () => {
-        const cells = graph.getSelectedCells()
+      document.getElementById('stencil').appendChild(this.stencil.container)
+    },
+    // 快捷键与事件
+    keyboardInit() {
+      this.graph.bindKey(['meta+c', 'ctrl+c'], () => {
+        const cells = this.graph.getSelectedCells()
         if (cells.length) {
-          graph.copy(cells)
+          this.graph.copy(cells)
         }
         return false
       })
-      graph.bindKey(['meta+x', 'ctrl+x'], () => {
-        const cells = graph.getSelectedCells()
+      this.graph.bindKey(['meta+x', 'ctrl+x'], () => {
+        const cells = this.graph.getSelectedCells()
         if (cells.length) {
-          graph.cut(cells)
+          this.graph.cut(cells)
         }
         return false
       })
-      graph.bindKey(['meta+v', 'ctrl+v'], () => {
-        if (!graph.isClipboardEmpty()) {
-          const cells = graph.paste({ offset: 32 })
-          graph.cleanSelection()
-          graph.select(cells)
+      this.graph.bindKey(['meta+v', 'ctrl+v'], () => {
+        if (!this.graph.isClipboardEmpty()) {
+          const cells = this.graph.paste({ offset: 32 })
+          this.graph.cleanSelection()
+          this.graph.select(cells)
         }
         return false
       })
 
       // undo redo
-      graph.bindKey(['meta+z', 'ctrl+z'], () => {
-        if (graph.canUndo()) {
-          graph.undo()
+      this.graph.bindKey(['meta+z', 'ctrl+z'], () => {
+        if (this.graph.canUndo()) {
+          this.graph.undo()
         }
         return false
       })
-      graph.bindKey(['meta+shift+z', 'ctrl+shift+z'], () => {
-        if (graph.canRedo()) {
-          graph.redo()
+      this.graph.bindKey(['meta+shift+z', 'ctrl+shift+z'], () => {
+        if (this.graph.canRedo()) {
+          this.graph.redo()
         }
         return false
       })
 
       // select all
-      graph.bindKey(['meta+a', 'ctrl+a'], () => {
-        const nodes = graph.getNodes()
+      this.graph.bindKey(['meta+a', 'ctrl+a'], () => {
+        const nodes = this.graph.getNodes()
         if (nodes) {
-          graph.select(nodes)
+          this.graph.select(nodes)
         }
       })
 
       // delete
-      graph.bindKey('backspace', () => {
-        const cells = graph.getSelectedCells()
+      this.graph.bindKey('backspace', () => {
+        const cells = this.graph.getSelectedCells()
         if (cells.length) {
-          graph.removeCells(cells)
+          this.graph.removeCells(cells)
         }
       })
 
       // zoom
-      graph.bindKey(['ctrl+1', 'meta+1'], () => {
-        const zoom = graph.zoom()
+      this.graph.bindKey(['ctrl+1', 'meta+1'], () => {
+        const zoom = this.graph.zoom()
         if (zoom < 1.5) {
-          graph.zoom(0.1)
+          this.graph.zoom(0.1)
         }
       })
-      graph.bindKey(['ctrl+2', 'meta+2'], () => {
-        const zoom = graph.zoom()
+      this.graph.bindKey(['ctrl+2', 'meta+2'], () => {
+        const zoom = this.graph.zoom()
         if (zoom > 0.5) {
-          graph.zoom(-0.1)
+          this.graph.zoom(-0.1)
         }
       })
-
-      // 控制连接桩显示/隐藏
-      const showPorts = (ports, show) => {
-        for (let i = 0, len = ports.length; i < len; i += 1) {
-          ports[i].style.visibility = show ? 'visible' : 'hidden'
-        }
-      }
-      graph.on('node:mouseenter', () => {
-        const container = document.getElementById('graph-container')
-        const ports = container.querySelectorAll('.x6-port-body')
-        showPorts(ports, true)
+      this.graph.on('selection:changed', (args) => {
+        args.added.forEach((cell) => {
+          if (cell.isNode() && cell.store.data.attrs?.id == 'audit-shape') {
+            if (cell.store.data.attrs?.id == 'audit-shape') {
+              this.selectCell = cell
+              this.nodeText = cell.store.data.attrs?.label?.text || ''
+            }
+          }
+        })
       })
-      graph.on('node:mouseleave', () => {
-        const container = document.getElementById('graph-container')
-        const ports = container.querySelectorAll('.x6-port-body')
-        showPorts(ports, false)
-      })
-      // #endregion
-
-      // #region 初始化图形
+    },
+    // 初始化图形
+    shapeInit() {
       const ports = {
         groups: {
           top: {
@@ -326,7 +341,7 @@ export default {
           },
           ports: { ...ports },
         },
-        true
+        true,
       )
 
       Graph.registerNode(
@@ -348,96 +363,109 @@ export default {
           },
           ports: { ...ports },
         },
-        true
+        true,
       )
 
-      const r1 = graph.createNode({
+      const shapeStart = this.graph.createNode({
         shape: 'custom-rect',
         label: '开始',
         attrs: {
+          id: 'start-shape',
           body: {
             rx: 20,
             ry: 26,
           },
         },
       })
-      const r3 = graph.createNode({
+      const shapeAudit = this.graph.createNode({
         shape: 'custom-rect',
         attrs: {
+          id: 'audit-shape',
           body: {
             rx: 6,
             ry: 6,
           },
         },
-        label: '可选过程',
+        label: '',
       })
-      const r6 = graph.createNode({
+      const shapeEnd = this.graph.createNode({
         shape: 'custom-circle',
-        label: '连接',
+        label: '结束',
+        attrs: {
+          id: 'end-shape',
+        },
       })
-      stencil.load([r1, r3, r6], 'group')
-
-      // #endregion
-
-      function preWork() {
-        // 这里协助演示的代码，在实际项目中根据实际情况进行调整
-        const container = document.getElementById('container')
-        const stencilContainer = document.createElement('div')
-        stencilContainer.id = 'stencil'
-        const graphContainer = document.createElement('div')
-        graphContainer.id = 'graph-container'
-        container.appendChild(stencilContainer)
-        container.appendChild(graphContainer)
-
-        insertCss(`
-    #container {
-      display: flex;
-      border: 1px solid #dfe3e8;
-    }
-    #stencil {
-      width: 180px;
-      height: 600px;
-      position: relative;
-      border-right: 1px solid #dfe3e8;
-    }
-    #graph-container {
-      width: calc(100% - 180px);
-      height: 600px;
-    }
-    .x6-widget-stencil  {
-      background-color: #fff;
-    }
-    .x6-widget-stencil-title {
-      background-color: #fff;
-    }
-    .x6-widget-stencil-group-title {
-      background-color: #fff !important;
-    }
-    .x6-widget-transform {
-      margin: -1px 0 0 -1px;
-      padding: 0px;
-      border: 1px solid #239edd;
-    }
-    .x6-widget-transform > div {
-      border: 1px solid #239edd;
-    }
-    .x6-widget-transform > div:hover {
-      background-color: #3dafe4;
-    }
-    .x6-widget-transform-active-handle {
-      background-color: #3dafe4;
-    }
-    .x6-widget-transform-resize {
-      border-radius: 0;
-    }
-    .x6-widget-selection-inner {
-      border: 1px solid #239edd;
-    }
-    .x6-widget-selection-box {
-      opacity: 0;
-    }
-  `)
+      this.stencil.load([shapeStart, shapeAudit, shapeEnd], 'group')
+    },
+    // 控制连接桩显示/隐藏
+    portsInit() {
+      const showPorts = (ports, show) => {
+        for (let i = 0, len = ports.length; i < len; i += 1) {
+          ports[i].style.visibility = show ? 'visible' : 'hidden'
+        }
       }
+      this.graph.on('node:mouseenter', () => {
+        const container = document.getElementById('graph-container')
+        const ports = container.querySelectorAll('.x6-port-body')
+        showPorts(ports, true)
+      })
+      this.graph.on('node:mouseleave', () => {
+        const container = document.getElementById('graph-container')
+        const ports = container.querySelectorAll('.x6-port-body')
+        showPorts(ports, false)
+      })
+    },
+    styleInit() {
+      insertCss(`
+          #container {
+            display: flex;
+            border: 1px solid #dfe3e8;
+          }
+          #stencil {
+            width: 180px;
+            height: 600px;
+            position: relative;
+            border-right: 1px solid #dfe3e8;
+          }
+          #graph-container {
+            width: calc(100% - 180px);
+            height: 600px;
+          }
+          .x6-widget-stencil  {
+            background-color: #fff;
+          }
+          .x6-widget-stencil-title {
+            background-color: #fff;
+          }
+          .x6-widget-stencil-group-title {
+            background-color: #fff !important;
+          }
+          .x6-widget-transform {
+            margin: -1px 0 0 -1px;
+            padding: 0px;
+            border: 1px solid #239edd;
+          }
+          .x6-widget-transform > div {
+            border: 1px solid #239edd;
+          }
+          .x6-widget-transform > div:hover {
+            background-color: #3dafe4;
+          }
+          .x6-widget-transform-active-handle {
+            background-color: #3dafe4;
+          }
+          .x6-widget-transform-resize {
+            border-radius: 0;
+          }
+          .x6-widget-selection-inner {
+            border: 1px solid #239edd;
+          }
+          .x6-widget-selection-box {
+            opacity: 0;
+          }`)
+    },
+    changeNodeText() {
+      this.selectCell.attr('label/text', this.nodeText)
     },
     goBack() {
       this.$router.go(-1)
@@ -473,5 +501,11 @@ export default {
 .submit-btn {
   background: @primary-color;
   color: @white-color;
+}
+.drawer {
+  width: 100%;
+  height: 80px;
+  background: #fff;
+  margin-top: 20px;
 }
 </style>
