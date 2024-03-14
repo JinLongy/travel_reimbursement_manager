@@ -10,19 +10,19 @@
       <el-card class="common-card" style="text-align: left">
         <el-form :inline="true" :model="query" class="demo-form-inline">
           <div id="search">
-            <el-form-item label="提交人:" style="width: 25%">
+            <el-form-item label="提交人:" style="width: 30%">
               <el-input v-model="query.name" clearable placeholder="请输入提交人"></el-input>
             </el-form-item>
-            <el-form-item label="事由:" style="width: 25%">
+            <el-form-item label="事由:" style="width: 30%">
               <el-input v-model="query.reason" clearable placeholder="请输入事由"></el-input>
             </el-form-item>
-            <el-form-item :label="currentTab == 'tab1' ? '报销单号:' : '申请单号:'" style="width: 25%">
+            <el-form-item :label="currentTab == 'tab1' ? '报销单号:' : '申请单号:'" style="width: 30%">
               <el-input v-model="query.no" clearable placeholder="请输入单号"></el-input>
             </el-form-item>
             <el-form-item :label="currentTab == 'tab1' ? '报销人:' : '申请人:'" style="width: 25%">
               <el-input v-model="query.no" clearable placeholder="请输入单号"></el-input>
             </el-form-item>
-            <el-form-item label="创建时间" style="width: 30%">
+            <el-form-item label="创建时间" style="width: 38%">
               <el-date-picker
                 v-model="query.dateRange"
                 type="daterange"
@@ -39,7 +39,7 @@
                 <el-radio :label="2">{{ currentTab == 'tab1' ? '我的报销单' : '我的申请单' }}</el-radio>
               </el-radio-group>
             </el-form-item>
-            <el-form-item style="width: 15%">
+            <el-form-item style="width: 5%">
               <el-button plain class="search-btn" @click="search" icon="el-icon-search">查询</el-button>
             </el-form-item>
           </div>

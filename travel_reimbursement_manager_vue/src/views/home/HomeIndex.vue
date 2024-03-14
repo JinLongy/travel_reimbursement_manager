@@ -7,7 +7,7 @@
           <el-col :span="7">
             <div class="container blue">
               <div class="title-row">
-                <i class="el-icon-s-ticket"> </i>
+                <img class="title-row-icon" src="../../assets/home-cl.png" />
                 <span class="title blue-title">差旅</span>
                 <span class="des">国内、国际差旅、异地派遣</span>
               </div>
@@ -20,7 +20,7 @@
           <el-col :span="7">
             <div class="container yellow">
               <div class="title-row">
-                <i class="el-icon-s-ticket"> </i>
+                <img class="title-row-icon" src="../../assets/home-jb.png" />
                 <span class="title yellow-title">加班</span>
                 <span class="des">工作日、周末、法定节假日加班</span>
               </div>
@@ -32,7 +32,7 @@
           <el-col :span="7">
             <div class="container pink">
               <div class="title-row">
-                <i class="el-icon-s-ticket"> </i>
+                <img class="title-row-icon" src="../../assets/home-bx.png" style="width: 28px; height: 28px" />
                 <span class="title pink-title">报销</span>
                 <span class="des">晚餐补贴、团建、交通等</span>
               </div>
@@ -59,19 +59,24 @@
             :border="true"
             :row-key="getRowKeys"
           >
-            <el-table-column prop="id" label="单据信息" width="160" align="center"> </el-table-column>
-            <el-table-column prop="type" label="业务类型" width="100" align="center"> </el-table-column>
-            <el-table-column prop="status" label="状态" width="120" align="center"> </el-table-column>
-            <el-table-column prop="remark" label="事由" align="center"> </el-table-column>
-            <el-table-column prop="feeTotal" label="金额" width="120" align="center" :formatter="formatMoney"> </el-table-column>
-            <el-table-column prop="createTime" label="报销时间" width="130" align="center" :formatter="formatDate">
-            </el-table-column>
+            <el-table-column prop="id" label="单据信息" width="160" align="center"></el-table-column>
+            <el-table-column prop="type" label="业务类型" width="100" align="center"></el-table-column>
+            <el-table-column prop="status" label="状态" width="120" align="center"></el-table-column>
+            <el-table-column prop="remark" label="事由" align="center"></el-table-column>
+            <el-table-column prop="feeTotal" label="金额" width="120" align="center" :formatter="formatMoney"></el-table-column>
+            <el-table-column
+              prop="createTime"
+              label="报销时间"
+              width="130"
+              align="center"
+              :formatter="formatDate"
+            ></el-table-column>
             <el-table-column label="操作" width="280" align="center">
               <template slot-scope="scope">
-                <el-button type="text" @click="editInfo(scope.row)">编辑 </el-button>
-                <el-button type="text" style="margin-left: 0" @click="copyInfo(scope.row)">复制 </el-button>
-                <el-button type="text" style="margin-left: 0" @click="deleteInfo(scope.row)">删除 </el-button>
-                <el-button type="text" style="margin-left: 0" @click="approval(scope.row)">审批 </el-button>
+                <el-button type="text" @click="editInfo(scope.row)">编辑</el-button>
+                <el-button type="text" style="margin-left: 0" @click="copyInfo(scope.row)">复制</el-button>
+                <el-button type="text" style="margin-left: 0" @click="deleteInfo(scope.row)">删除</el-button>
+                <el-button type="text" style="margin-left: 0" @click="approval(scope.row)">审批</el-button>
               </template>
             </el-table-column>
             <div slot="empty"><el-empty description="暂无数据"></el-empty></div>
@@ -88,8 +93,7 @@
               layout="total, sizes, prev, pager, next, jumper"
               :total="total"
               :background="true"
-            >
-            </el-pagination>
+            ></el-pagination>
           </div>
         </div>
       </el-card>
@@ -328,6 +332,10 @@ export default {
     .des {
       color: #999;
       font-size: 12px;
+    }
+    &-icon {
+      width: 24px;
+      height: 24px;
     }
   }
   .button-row {

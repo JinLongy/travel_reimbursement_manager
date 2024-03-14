@@ -44,19 +44,19 @@
             </span>
             <el-button type="text" @click="editCard(index)" icon="el-icon-edit" class="edit-btn">编辑</el-button>
           </h2>
-          <el-button size="mini" @click="deleteCard(index)" class="del-btn">删除银行卡</el-button>
-          <p class="card-no-row">
+          <el-button size="mini" @click="deleteCard(index)" class="del-btn" v-if="delIndex == index">删除银行卡</el-button>
+          <div class="card-no-row">
             <span class="card-no" v-if="card.showCardNumber">{{ card.cardNumber }}</span>
             <span class="card-no" v-else>**** **** **** ****</span>
             <span class="eye-icon">
               <i class="el-icon-view" @click="toggleCardNumber(index)"></i>
             </span>
-          </p>
-          <p class="user-name">持卡人：{{ card.userName }}</p>
-          <p class="card-footer">
+          </div>
+          <div class="user-name">持卡人：{{ card.userName }}</div>
+          <div class="card-footer">
             <span>添加时间：{{ card.userName }}</span>
             <span>开户行地区：{{ card.region || '-' }}</span>
-          </p>
+          </div>
         </div>
       </div>
     </el-card>
@@ -68,6 +68,7 @@ export default {
   data() {
     return {
       showDialog: false,
+      delIndex: -1,
       currentCardForm: {
         userName: '',
         bankName: '',
@@ -76,6 +77,14 @@ export default {
         branchName: '',
       },
       cards: [
+        {
+          userName: '111',
+          bankName: '222',
+          cardNumber: '333',
+          region: '444',
+          branchName: '555',
+          showCardNumber: false,
+        },
         {
           userName: '111',
           bankName: '222',
@@ -106,9 +115,10 @@ export default {
       this.cancel()
     },
     editCard(index) {
-      this.currentCardForm = { ...this.cards[index] }
-      this.currentCardFormIndex = index
-      this.showDialog = true
+      this.delIndex = index
+      // this.currentCardForm = { ...this.cards[index] }
+      // this.currentCardFormIndex = index
+      // this.showDialog = true
     },
     deleteCard(index) {
       this.cards.splice(index, 1)
@@ -145,7 +155,7 @@ export default {
   display: flex;
   flex-wrap: wrap;
   .card-item {
-    width: 350px;
+    width: 390px;
     border-radius: 8px;
     padding: 16px;
     box-sizing: border-box;
@@ -166,6 +176,7 @@ export default {
       font-size: 32px;
       margin: 30px 0;
       color: @white-color;
+      text-align: left;
       .flex_arrange(row, flex-start);
       .card-no {
         margin-bottom: -10px;
@@ -179,11 +190,13 @@ export default {
       color: @white-color;
       font-size: 18px;
       font-weight: 600;
+      text-align: left;
     }
     .card-footer {
       margin-top: 8px;
       font-size: 12px;
       color: @white-color;
+      text-align: left;
       span + span {
         margin-left: 58px;
       }
